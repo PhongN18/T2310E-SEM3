@@ -16,7 +16,9 @@ db.students.insertMany([
         purchases: [{ item: "Notebook", price: 15 }],
         numbers: [10, 20, 30],
         statuses: ["inactive", "archived"],
-        licenses: [{ type: "silver", expiry: "2023" }]
+        licenses: [{ type: "silver", expiry: "2023" }],
+        class: "10A",
+        comments: ["Great performance", "Needs to focus on math", "Review spam messages"]
     },
     {
         name: "Bob",
@@ -33,7 +35,9 @@ db.students.insertMany([
         purchases: [{ item: "Pen", price: 5 }],
         numbers: [20, 30, 40],
         statuses: ["active", "archived"],
-        licenses: [{ type: "gold", expiry: "2024" }]
+        licenses: [{ type: "gold", expiry: "2024" }],
+        class: "10B",
+        comments: ["Improvement needed in history", "spam detected in notes", "Good effort in science"]
     },
     {
         name: "Charlie",
@@ -50,7 +54,9 @@ db.students.insertMany([
         purchases: [{ item: "Book", price: 20 }],
         numbers: [5, 10, 15],
         statuses: ["pending", "active"],
-        licenses: [{ type: "bronze", expiry: "2025" }]
+        licenses: [{ type: "bronze", expiry: "2025" }],
+        class: "10A",
+        comments: ["Outstanding in math", "English requires improvement", "Possible spam alert"]
     },
     {
         name: "David",
@@ -67,7 +73,9 @@ db.students.insertMany([
         purchases: [{ item: "Laptop", price: 500 }],
         numbers: [40, 50, 60],
         statuses: ["inactive", "pending"],
-        licenses: [{ type: "gold", expiry: "2026" }]
+        licenses: [{ type: "gold", expiry: "2026" }],
+        class: "10B",
+        comments: ["Consistent progress", "spam removed from tasks", "Strong in biology"]
     },
     {
         name: "Eve",
@@ -84,9 +92,12 @@ db.students.insertMany([
         purchases: [{ item: "Tablet", price: 300 }],
         numbers: [10, 20, 25],
         statuses: ["archived", "pending"],
-        licenses: [{ type: "silver", expiry: "2027" }]
+        licenses: [{ type: "silver", expiry: "2027" }],
+        class: "10A",
+        comments: ["Creative in art", "Needs more focus on math", "Spam content identified"]
     }
 ]);
+
 
 
 // Basic
@@ -99,4 +110,64 @@ db.students.updateOne(
 // $addToSet: add Physics to subjects if not existing
 db.students.updateMany({}, { $addToSet: { subjects: 'Physics' } })
 
-// $pop: remove last element from attendance array of student _id 101
+// $pop: remove last element from attendance array of first student (Alice)
+db.students.updateOne(
+	{ name: "Alice" },
+    { $pop: { attendance: -1 } }
+)
+
+// $pull: remove subjects that have grade < 50 from grades
+db.students.updateMany(
+    {},
+    { $pull: { grades: { score: { $lt: 50 } } } }
+)
+
+// $push: add element to grades array
+db.students.updateMany(
+    {},
+    { $push: { grades: {subject: "History", score: 75} } }
+)
+
+// $pullAll: delete ["urgent", "important"] from tags
+db.students.updateMany(
+	{},
+    { $pullAll: { tags: ["urgent", "important"] } }
+)
+
+// $[]: Change all pending to complete
+db.students.updateMany(
+    { "tasks.status": 'pending' },
+    { $set: { "tasks.$[].status": 'completed' } }
+)
+
+// Advanced
+// Update 'John'to 'Johnny' in friends array if age > 20
+db.students.updateMany(
+    { $and: [
+                { "friends.name": "John" },
+                { "friends.age": { $gt: 20 } }
+            ]
+    },
+    { $set: { "friends.$.name": "Johnny" }}
+)
+
+// Add skill element if not exists
+db.students.updateMany(
+	{ "skills.skill": { $ne: "JavaScript" } },
+	{ $addToSet: { skills: { skill: "JavaScript", level: "Intermediate" } } }
+)
+
+// Delete first element of grades array if student in class 10A
+db.students.updateMany(
+    { class: "10A" },
+    { $pop: { grades: -1 } }
+)
+
+// Delete all comments containing 'spam' in comments
+db.students.updateMany(
+    {},
+    { $pull: { comments: { $regex: "(?i)spam(?-i)" } } }
+    // (?i)(?-i) - to mark start and end of case-insensitive substring
+)
+
+// Add element to purchases array
