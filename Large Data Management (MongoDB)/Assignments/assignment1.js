@@ -124,3 +124,126 @@ db.Employee.insertMany(
         }
     ]
 )
+
+// 1. Find employees with a salary greater than 60000
+db.Employee.find({ salary: { $gt: 60000 } })
+
+// 2. Display employees with Python as one of their skills
+db.Employee.find({ skills: { $elemMatch: { $eq: 'Python' } } })
+
+// 3. Update the experience of Alice to 6 years
+db.Employee.updateOne(
+    { name: 'Alice' },
+    { $set: { experience: 6 } }
+)
+
+// 4. Rename the salary field to annual_salary
+db.Employee.updateMany(
+    {}, { $rename: { salary: "annual_salary" } }
+)
+
+
+// Ex2: Library Management
+// Create database and collection
+use Library
+db.Books.insertMany(
+    [
+        {
+            "title": "To Kill a Mockingbird",
+            "author": "Harper Lee",
+            "genres": ["Fiction", "Classic"],
+            "copies": 5,
+            "borrowed": 3
+        },
+        {
+            "title": "1984",
+            "author": "George Orwell",
+            "genres": ["Fiction", "Dystopian"],
+            "copies": 8,
+            "borrowed": 6
+        },
+        {
+            "title": "The Great Gatsby",
+            "author": "F. Scott Fitzgerald",
+            "genres": ["Fiction", "Classic"],
+            "copies": 3,
+            "borrowed": 1
+        }
+    ]
+)
+
+// 1. Find books with borrowed count less than 5
+db.Books.find({ borrowed: { $lt: 5 } })
+
+// 2. Display books of the genre Classic
+db.Books.find({ genres: { $elemMatch: { $eq: 'Classic' } } })
+
+// 3. Add a new field available_copies for all books (calculated as copies - borrowed)
+db.Books.aggregate(
+    { $set: { available_copies: { $subtract: ["$copies", "$borrowed"] } } }
+)
+
+// 4. Update the author field of 1984 to Eric Arthur Blair
+db.Books.updateOne(
+    { title: '1984' },
+    { $set: { author: 'Eric Arthur Blair' } }
+)
+
+
+// Ex3: Online Store
+// Create database and collection
+use ECommerce
+db.Products.insertMany(
+    [
+        {
+            "product": "Laptop",
+            "brand": "Dell",
+            "price": 1200,
+            "stock": 15,
+            "ratings": [5, 4, 4, 5, 5]
+        },
+        {
+            "product": "Smartphone",
+            "brand": "Samsung",
+            "price": 800,
+            "stock": 30,
+            "ratings": [4, 4, 5, 3, 4]
+        },
+        {
+            "product": "Headphones",
+            "brand": "Sony",
+            "price": 150,
+            "stock": 50,
+            "ratings": [5, 5, 4, 5, 4]
+        }
+    ]
+)
+
+// 1. Find products priced above 500
+db.Products.find({ price: { $gt: 500 } })
+
+// 2. Display products with an average rating greater than 4.5
+db.Products.aggregate(
+    { $set: { avg_ratings: { $avg: "$ratings" } } },
+    { $match: { avg_ratings: { $gt: 4.5 } } }
+)
+
+// 3. Reduce the stock of Laptop by 2 units
+db.Products.updateOne(
+    { product: 'Laptop' },
+    { $inc: { stock: -2 } }
+)
+
+// 4. Add a new field on_sale and set it to true for products with price less than 200
+db.Products.updateMany(
+    {},
+    [{
+        $set: {
+            on_sale: {
+                $cond: { if: { $lt: ["$price", 200] }, then: true, else: false }
+            }
+        }
+    }]
+)
+// [] for aggregation pipeline in update queries
+
