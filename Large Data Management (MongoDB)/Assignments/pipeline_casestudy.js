@@ -123,3 +123,43 @@ db.sales.insertMany([
 
 // Analyse data with pipeline
 // 1. Analyse sales by month
+db.sales.aggregate([
+    { $project: {
+        year: { $year: { $dateFromString: { dateString: "$date" } } },
+        month: { $month: { $dateFromString: { dateString: "$date" } } },
+        // $dateFromString: converts string representation of a date into ISODate object
+        // syntax: { $dateFromString: { dateString: <string-expression> } }, this case is the field "date"
+        // $year, $month: extract year and month from a date object
+        category: 1,
+        revenue: { $multiply: ["$quantity", "$price"] }
+        }
+    },
+    { $group: {
+        _id: { year: "$year", month: "$month", category: "$category" },
+        // documents with the same combination of year, month and category are grouped together
+        totalRevenue: { $sum: "$revenue" }
+        // sum of field revenue of all documents in each group
+        }
+    },
+    { $sort: { "totalRevenue": -1 } },
+    { $group: {
+        _id: { year: "$_id.year", month: "$_id.month" },
+        // refer to the _id object in the last $group stage (object containing fields year, month and category)
+        topCategories: {
+            $push: {
+                category: "$_id.category",
+                revenue: "$totalRevenue"
+            }
+        }
+        }
+    },
+    { $project: {
+            _id: 0,
+            year: "$_id.year",
+            month: "$_id.month",
+            // refer to the _id object in the last $group stage (object containing only fields year and month)
+            topCategories: { $slice: ["$topCategories", 3] }
+            // show only the top 3 categories
+        }
+    }
+]).pretty()
