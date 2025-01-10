@@ -265,11 +265,41 @@ db.orders.aggregate([
             _id: 0,
             year: "$_id.year",
             month: "$_id.month",
-            totalRevenue: "$totalRevenue"
+            totalRevenue: { $round: ["$totalRevenue", 2] } // làm tròn để tránh sai sót khi máy tính tính toán
         }
     }, // hiển thị năm, tháng và doanh thu
     { $sort: { year: 1, month: 1 } } // sắp xếp thứ tự tăng dần
 ])
+
+// Output
+[
+    {
+        year: 2024,
+        month: 9,
+        totalRevenue: 136.35
+    },
+    {
+        year: 2024,
+        month: 10,
+        totalRevenue: 55.95
+    },
+    {
+        year: 2024,
+        month: 11,
+        totalRevenue: 245.15
+    },
+    {
+        year: 2024,
+        month: 12,
+        totalRevenue: 226.79
+    },
+    {
+        year: 2025,
+        month: 1,
+        totalRevenue: 154.79
+    }
+]
+
 
 // 2. Top món ăn được đặt nhiều nhất theo tháng
 db.orders.aggregate([
@@ -310,6 +340,41 @@ db.orders.aggregate([
     { $sort: { year: 1, month: 1 } }
 ])
 
+// Output
+[
+    {
+        year: 2024,
+        month: 9,
+        item_name: "Tiramisu",
+        totalOrdered: 9
+    },
+    {
+        year: 2024,
+        month: 10,
+        item_name: "Grilled Salmon",
+        totalOrdered: 3
+    },
+    {
+        year: 2024,
+        month: 11,
+        item_name: "Chicken Wings",
+        totalOrdered: 8
+    },
+    {
+        year: 2024,
+        month: 12,
+        item_name: "Grilled Salmon",
+        totalOrdered: 8
+    },
+    {
+        year: 2025,
+        month: 1,
+        item_name: "Lemonade",
+        totalOrdered: 8
+    }
+]
+
+
 // 3. Khách hàng có tổng chi tiêu cao nhất (all-time)
 db.orders.aggregate([
     { $unwind: "$items" },
@@ -341,12 +406,20 @@ db.orders.aggregate([
         $project: {
             _id: 0,
             customer: "$_id",
-            totalSpent: "$totalSpent"
+            totalSpent: { $round: ["$totalSpent", 2] }
         }
     },
     { $sort: { totalSpent: -1 } },
     { $limit: 1 }
 ])
+
+// Output
+[
+    {
+        customer: 'Alice Johnson',
+        totalSpent: 263.74
+    }
+]
 
 // 4. Tính tổng doanh thu theo danh mục món ăn
 db.orders.aggregate([
@@ -370,11 +443,36 @@ db.orders.aggregate([
         $project: {
             _id: 0,
             category: "$_id",
-            totalRevenue: "$totalRevenue"
+            totalRevenue: { $round: ["$totalRevenue", 2] }
         }
     },
     { $sort: { totalRevenue: -1 } }
 ])
+
+// Output
+[
+    {
+        category: "Main Course",
+        totalRevenue: 452.68
+    },
+    {
+        category: "Appetizer",
+        totalRevenue: 144.81
+    },
+    {
+        category: "Dessert",
+        totalRevenue: 133.79
+    },
+    {
+        category: "Side Dish",
+        totalRevenue: 51.87
+    },
+    {
+        category: "Beverage",
+        totalRevenue: 35.88
+    }
+]
+
 
 // 5. Đếm số đơn hàng bị hủy mỗi tháng
 db.orders.aggregate([
@@ -397,6 +495,36 @@ db.orders.aggregate([
     },
     { $sort: { year: 1, month: 1 } }
 ])
+
+// Output
+[
+    {
+        year: 2024,
+        month: 9,
+        cancelledOrder: 1
+    },
+    {
+        year: 2024,
+        month: 10,
+        cancelledOrder: 1
+    },
+    {
+        year: 2024,
+        month: 11,
+        cancelledOrder: 3
+    },
+    {
+        year: 2024,
+        month: 12,
+        cancelledOrder: 2
+    },
+    {
+        year: 2025,
+        month: 1,
+        cancelledOrder: 2
+    }
+]
+
 
 // 6. Tần suất đặt hàng của từng khách hàng
 db.orders.aggregate([
@@ -423,6 +551,27 @@ db.orders.aggregate([
         }
     }
 ])
+
+// Output
+[
+    {
+        customer: 'Diana Prince',
+        totalOrders: 4
+    },
+    {
+        customer: 'Alice Johnson',
+        totalOrders: 5
+    },
+    {
+        customer: 'Charlie Brown',
+        totalOrders: 4
+    },
+    {
+        customer: 'Evan Taylor',
+        totalOrders: 3
+    }
+]
+
 
 // 7. Doanh thu theo ngày trong một tháng cụ thể (12/2024)
 db.orders.aggregate([
@@ -458,11 +607,34 @@ db.orders.aggregate([
             year: "$_id.year",
             month: "$_id.month",
             day: "$_id.day",
-            totalRevenue: "$totalRevenue"
+            totalRevenue: { $round: ["$totalRevenue", 2] }
         }
     },
     { $sort: { totalRevenue: -1 } }
 ])
+
+// Output for 12/2024
+[
+    {
+        year: 2024,
+        month: 12,
+        day: 13,
+        totalRevenue: 95.92
+    },
+    {
+        year: 2024,
+        month: 12,
+        day: 31,
+        totalRevenue: 66.91
+    },
+    {
+        year: 2024,
+        month: 12,
+        day: 23,
+        totalRevenue: 63.96
+    }
+]
+
 
 // 8. Phân tích khách hàng đăng ký mới
 db.users.aggregate([
@@ -482,6 +654,26 @@ db.users.aggregate([
     },
     { $sort: { year: 1, month: 1 } }
 ])
+
+// Output
+[
+    {
+        year: 2024,
+        month: 11,
+        userRegistered: 3
+    },
+    {
+        year: 2024,
+        month: 12,
+        userRegistered: 1
+    },
+    {
+        year: 2025,
+        month: 1,
+        userRegistered: 1
+    }
+]
+
 
 // 9. Phân tích danh mục bán chạy nhất
 db.orders.aggregate([
@@ -512,6 +704,14 @@ db.orders.aggregate([
     { $limit: 1 }
 ])
 
+// Output
+[
+    {
+        category: 'Main Course',
+        quantitySold: 32
+    }
+]
+
 // 10. Tỷ lệ đơn hàng hoàn thành
 db.orders.aggregate([
     {
@@ -529,11 +729,17 @@ db.orders.aggregate([
             totalOrders: 1,
             completedOrders: 1,
             percentageCompleted: {
-                $multiply: [
-                    { $divide: ["$completedOrders", "$totalOrders"] }, // tính tỷ lệ
-                    100
-                ]
+                $round: [{ $multiply: [{ $divide: ["$completedOrders", "$totalOrders"] }, 100] }, 2] // tính tỷ lệ
             }
         }
     }
 ]);
+
+// Output
+[
+    {
+        totalOrders: 16,
+        completedOrders: 7,
+        percentageCompleted: 43.75
+    }
+]
