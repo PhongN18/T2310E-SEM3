@@ -239,8 +239,8 @@ async function deleteMenuItem(collection) {
 async function main() {
     try {
         await client.connect();
-        console.log("Kết nối đến MongoDB thành công!");
         await initializeSampleData()
+        console.log("Kết nối đến MongoDB thành công!");
         showMenu();
     } catch (error) {
         console.error("Lỗi kết nối MongoDB:", error);
