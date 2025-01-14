@@ -7,6 +7,7 @@ const client = new MongoClient(uri);
 const dbName = "food_delivery";
 const db = client.db(dbName);
 const menuCollection = db.collection("menu");
+const ordersCollection = db.collection("orders");
 
 let nextId = 1
 
