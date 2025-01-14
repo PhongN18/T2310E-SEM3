@@ -15,14 +15,13 @@ npm install mongodb readline
 # Cấu trúc folder
 
 ```
-assignment3-group/
-|-- food-delivery-app/
-    |-- node_modules/    (Folder chứa dependencies)
-    |-- .gitignore       (File cấu hình Git)
-    |-- app.js           (File chính của ứng dụng)
-    |-- package-lock.json (File lock cho dependencies)
-    |-- package.json      (File quản lý project và dependencies)
-    |-- README.md        (File tài liệu README cho project)
+food-delivery-app/
+|-- node_modules/    (Folder chứa dependencies)
+|-- .gitignore       (File cấu hình Git)
+|-- app.js           (File chính của ứng dụng)
+|-- package-lock.json (File lock cho dependencies)
+|-- package.json      (File quản lý project và dependencies)
+|-- README.md        (File tài liệu README cho project)
 ```
 
 # Tạo database và collection trong MongoDBCompass
