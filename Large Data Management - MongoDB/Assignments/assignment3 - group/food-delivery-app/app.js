@@ -82,6 +82,20 @@ function capitalize(text) {
     return text.trim().replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
+function validatePrice(price, callback) {
+    if (!/^[0-9]+$/.test(price)) {
+        console.log("Giá món ăn phải là một số nguyên dương hợp lệ.");
+        return callback();
+    }
+
+    const parsedPrice = parseInt(price, 10);
+    if (parsedPrice <= 0) {
+        console.log("Giá món ăn phải lớn hơn 0.");
+        return callback();
+    }
+    return parsedPrice;
+}
+
 
 // Thêm món ăn mới
 async function createMenuItem(collection) {
@@ -111,11 +125,8 @@ async function createMenuItem(collection) {
     // Validate giá
     function askPrice(item_name, category) {
         rl.question("Nhập giá món ăn: ", async (price) => {
-            const parsedPrice = parseInt(price, 10);
-            if (isNaN(parsedPrice) || parsedPrice <= 0) {
-                console.log("Giá món ăn phải là một số nguyên dương.");
-                return askPrice(item_name, category);
-            }
+            const parsedPrice = validatePrice(price, () => askPrice(item_name, category));
+            if (!parsedPrice) return;
 
             try {
                 const newItem = {
@@ -183,11 +194,8 @@ async function updateMenuItem(collection) {
                             if (category) updatedData.category = capitalize(category);
 
                             if (price) {
-                                const parsedPrice = parseInt(price, 10);
-                                if (isNaN(parsedPrice) || parsedPrice <= 0) {
-                                    console.log("Giá mới phải là một số nguyên dương.");
-                                    return updatePrice();
-                                }
+                                const parsedPrice = validatePrice(price, updatePrice);
+                                if (!parsedPrice) return;
                                 updatedData.price = parsedPrice;
                             }
 
