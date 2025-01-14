@@ -1,4 +1,8 @@
-# Khởi tạo dự án bằng nodejs:
+# Presentation
+[Slides](https://www.canva.com/design/DAGcKtvxI04/FdgGpluN9OFYzxWiT6fQyA/view?utm_content=DAGcKtvxI04&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hede7266a08)
+
+# Chạy dự án
+## Khởi tạo dự án bằng nodejs:
 
 ```
 mkdir food-delivery-app
@@ -6,13 +10,13 @@ cd food-delivery-app
 npm init -y
 ```
 
-# Cài đặt thư viện
+## Cài đặt thư viện
 
 ```
 npm install mongodb readline
 ```
 
-# Cấu trúc folder
+## Cấu trúc folder
 
 ```
 food-delivery-app/
@@ -24,14 +28,14 @@ food-delivery-app/
 |-- README.md        (File tài liệu README cho project)
 ```
 
-# Tạo database và collection trong MongoDBCompass
+## Tạo database và collection trong MongoDBCompass
 
 ```
 use food_delivery
 db.createCollection('menu')
 ```
 
-# Chạy chương trình
+## Chạy chương trình
 ```
 node app.js
 ```
