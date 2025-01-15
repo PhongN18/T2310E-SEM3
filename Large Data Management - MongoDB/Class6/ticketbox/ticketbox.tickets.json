@@ -1,0 +1,768 @@
+[{
+  "_id": {
+    "$oid": "6787d5acf0d92e4a8b48cfe1"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf89"
+  },
+  "customer_name": "John Smith",
+  "email": "john.smith@example.com",
+  "ticket_tier": "General Admission",
+  "purchase_date": "2025-01-10"
+},
+{
+  "_id": {
+    "$oid": "6787d5acf0d92e4a8b48cfe2"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf89"
+  },
+  "customer_name": "Emma Johnson",
+  "email": "emma.johnson@example.com",
+  "ticket_tier": "VIP",
+  "purchase_date": "2025-01-11"
+},
+{
+  "_id": {
+    "$oid": "6787d5acf0d92e4a8b48cfe3"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf89"
+  },
+  "customer_name": "Michael Williams",
+  "email": "michael.williams@example.com",
+  "ticket_tier": "Regular",
+  "purchase_date": "2025-01-12"
+},
+{
+  "_id": {
+    "$oid": "6787d5acf0d92e4a8b48cfe4"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf89"
+  },
+  "customer_name": "Olivia Brown",
+  "email": "olivia.brown@example.com",
+  "ticket_tier": "Student",
+  "purchase_date": "2025-01-13"
+},
+{
+  "_id": {
+    "$oid": "6787d666f0d92e4a8b48cfe5"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf8a"
+  },
+  "customer_name": "James Jones",
+  "email": "james.jones@example.com",
+  "ticket_tier": "Regular",
+  "purchase_date": "2025-01-14"
+},
+{
+  "_id": {
+    "$oid": "6787d666f0d92e4a8b48cfe6"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf8a"
+  },
+  "customer_name": "Ava Garcia",
+  "email": "ava.garcia@example.com",
+  "ticket_tier": "Premium",
+  "purchase_date": "2025-01-15"
+},
+{
+  "_id": {
+    "$oid": "6787d666f0d92e4a8b48cfe7"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf8a"
+  },
+  "customer_name": "William Miller",
+  "email": "william.miller@example.com",
+  "ticket_tier": "Student",
+  "purchase_date": "2025-01-16"
+},
+{
+  "_id": {
+    "$oid": "6787d666f0d92e4a8b48cfe8"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf8a"
+  },
+  "customer_name": "Sophia Davis",
+  "email": "sophia.davis@example.com",
+  "ticket_tier": "Regular",
+  "purchase_date": "2025-01-17"
+},
+{
+  "_id": {
+    "$oid": "6787d666f0d92e4a8b48cfe9"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf8a"
+  },
+  "customer_name": "Sophia Davis",
+  "email": "sophia.davis@example.com",
+  "ticket_tier": "Premium",
+  "purchase_date": "2025-01-18"
+},
+{
+  "_id": {
+    "$oid": "6787d666f0d92e4a8b48cfea"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf8a"
+  },
+  "customer_name": "Benjamin Wilson",
+  "email": "benjamin.wilson@example.com",
+  "ticket_tier": "Student",
+  "purchase_date": "2025-01-19"
+},
+{
+  "_id": {
+    "$oid": "6787d666f0d92e4a8b48cfeb"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf8a"
+  },
+  "customer_name": "Isabella Martinez",
+  "email": "isabella.martinez@example.com",
+  "ticket_tier": "Regular",
+  "purchase_date": "2025-01-20"
+},
+{
+  "_id": {
+    "$oid": "6787d780f0d92e4a8b48cfec"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf8b"
+  },
+  "customer_name": "Lucas Anderson",
+  "email": "lucas.anderson@example.com",
+  "ticket_tier": "Standard Pass",
+  "purchase_date": "2025-01-21"
+},
+{
+  "_id": {
+    "$oid": "6787d780f0d92e4a8b48cfed"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf8b"
+  },
+  "customer_name": "Mia Taylor",
+  "email": "mia.taylor@example.com",
+  "ticket_tier": "VIP Access",
+  "purchase_date": "2025-01-22"
+},
+{
+  "_id": {
+    "$oid": "6787d780f0d92e4a8b48cfee"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf8b"
+  },
+  "customer_name": "Henry Thomas",
+  "email": "henry.thomas@example.com",
+  "ticket_tier": "Standard Pass",
+  "purchase_date": "2025-01-23"
+},
+{
+  "_id": {
+    "$oid": "6787d780f0d92e4a8b48cfef"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf8b"
+  },
+  "customer_name": "Amelia Lee",
+  "email": "amelia.lee@example.com",
+  "ticket_tier": "VIP Access",
+  "purchase_date": "2025-01-24"
+},
+{
+  "_id": {
+    "$oid": "6787d780f0d92e4a8b48cff0"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf8b"
+  },
+  "customer_name": "Alexander Harris",
+  "email": "alexander.harris@example.com",
+  "ticket_tier": "Standard Pass",
+  "purchase_date": "2025-01-25"
+},
+{
+  "_id": {
+    "$oid": "6787d7e6f0d92e4a8b48cff1"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf8c"
+  },
+  "customer_name": "Harper Clark",
+  "email": "harper.clark@example.com",
+  "ticket_tier": "Basic",
+  "purchase_date": "2025-01-23"
+},
+{
+  "_id": {
+    "$oid": "6787d7e6f0d92e4a8b48cff2"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf8c"
+  },
+  "customer_name": "Daniel Lewis",
+  "email": "daniel.lewis@example.com",
+  "ticket_tier": "Gold",
+  "purchase_date": "2025-01-24"
+},
+{
+  "_id": {
+    "$oid": "6787d7e6f0d92e4a8b48cff3"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf8c"
+  },
+  "customer_name": "Evelyn Walker",
+  "email": "evelyn.walker@example.com",
+  "ticket_tier": "Platinum",
+  "purchase_date": "2025-01-25"
+},
+{
+  "_id": {
+    "$oid": "6787d7e6f0d92e4a8b48cff4"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf8c"
+  },
+  "customer_name": "Matthew Hall",
+  "email": "matthew.hall@example.com",
+  "ticket_tier": "Gold",
+  "purchase_date": "2025-01-26"
+},
+{
+  "_id": {
+    "$oid": "6787d7e6f0d92e4a8b48cff5"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf8c"
+  },
+  "customer_name": "Abigail Allen",
+  "email": "abigail.allen@example.com",
+  "ticket_tier": "Basic",
+  "purchase_date": "2025-01-27"
+},
+{
+  "_id": {
+    "$oid": "6787d7e6f0d92e4a8b48cff6"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf8c"
+  },
+  "customer_name": "Joseph Young",
+  "email": "joseph.young@example.com",
+  "ticket_tier": "Gold",
+  "purchase_date": "2025-01-28"
+},
+{
+  "_id": {
+    "$oid": "6787d826f0d92e4a8b48cff7"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf8d"
+  },
+  "customer_name": "Ella Hernandez",
+  "email": "ella.hernandez@example.com",
+  "ticket_tier": "Regular Seat",
+  "purchase_date": "2025-01-29"
+},
+{
+  "_id": {
+    "$oid": "6787d826f0d92e4a8b48cff8"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf8d"
+  },
+  "customer_name": "David King",
+  "email": "david.king@example.com",
+  "ticket_tier": "Deluxe Seat",
+  "purchase_date": "2025-01-30"
+},
+{
+  "_id": {
+    "$oid": "6787d826f0d92e4a8b48cff9"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf8d"
+  },
+  "customer_name": "Lily Wright",
+  "email": "lily.wright@example.com",
+  "ticket_tier": "Balcony",
+  "purchase_date": "2025-01-31"
+},
+{
+  "_id": {
+    "$oid": "6787d826f0d92e4a8b48cffa"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf8d"
+  },
+  "customer_name": "Samuel Lopez",
+  "email": "samuel.lopez@example.com",
+  "ticket_tier": "Regular Seat",
+  "purchase_date": "2025-02-01"
+},
+{
+  "_id": {
+    "$oid": "6787d826f0d92e4a8b48cffb"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf8d"
+  },
+  "customer_name": "Zoe Hill",
+  "email": "zoe.hill@example.com",
+  "ticket_tier": "Deluxe Seat",
+  "purchase_date": "2025-02-02"
+},
+{
+  "_id": {
+    "$oid": "6787d826f0d92e4a8b48cffc"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf8d"
+  },
+  "customer_name": "Christopher Scott",
+  "email": "christopher.scott@example.com",
+  "ticket_tier": "Balcony",
+  "purchase_date": "2025-02-03"
+},
+{
+  "_id": {
+    "$oid": "6787d826f0d92e4a8b48cffd"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf8d"
+  },
+  "customer_name": "Grace Green",
+  "email": "grace.green@example.com",
+  "ticket_tier": "Deluxe Seat",
+  "purchase_date": "2025-02-04"
+},
+{
+  "_id": {
+    "$oid": "6787d86af0d92e4a8b48cffe"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf8e"
+  },
+  "customer_name": "Andrew Adams",
+  "email": "andrew.adams@example.com",
+  "ticket_tier": "General Admission",
+  "purchase_date": "2025-02-05"
+},
+{
+  "_id": {
+    "$oid": "6787d86af0d92e4a8b48cfff"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf8e"
+  },
+  "customer_name": "Victoria Baker",
+  "email": "victoria.baker@example.com",
+  "ticket_tier": "VIP",
+  "purchase_date": "2025-02-06"
+},
+{
+  "_id": {
+    "$oid": "6787d86af0d92e4a8b48d000"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf8e"
+  },
+  "customer_name": "John Smith",
+  "email": "john.smith@example.com",
+  "ticket_tier": "Family Pack",
+  "purchase_date": "2025-02-07"
+},
+{
+  "_id": {
+    "$oid": "6787d86af0d92e4a8b48d001"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf8e"
+  },
+  "customer_name": "Emma Johnson",
+  "email": "emma.johnson@example.com",
+  "ticket_tier": "Student",
+  "purchase_date": "2025-02-08"
+},
+{
+  "_id": {
+    "$oid": "6787d86af0d92e4a8b48d002"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf8e"
+  },
+  "customer_name": "Michael Williams",
+  "email": "michael.williams@example.com",
+  "ticket_tier": "General Admission",
+  "purchase_date": "2025-02-09"
+},
+{
+  "_id": {
+    "$oid": "6787d86af0d92e4a8b48d003"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf8e"
+  },
+  "customer_name": "Olivia Brown",
+  "email": "olivia.brown@example.com",
+  "ticket_tier": "VIP",
+  "purchase_date": "2025-02-10"
+},
+{
+  "_id": {
+    "$oid": "6787d86af0d92e4a8b48d004"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf8e"
+  },
+  "customer_name": "James Jones",
+  "email": "james.jones@example.com",
+  "ticket_tier": "Family Pack",
+  "purchase_date": "2025-02-11"
+},
+{
+  "_id": {
+    "$oid": "6787d86af0d92e4a8b48d005"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf8e"
+  },
+  "customer_name": "Ava Garcia",
+  "email": "ava.garcia@example.com",
+  "ticket_tier": "Student",
+  "purchase_date": "2025-02-12"
+},
+{
+  "_id": {
+    "$oid": "6787d979f0d92e4a8b48d006"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf8f"
+  },
+  "customer_name": "Sophia Davis",
+  "email": "sophia.davis@example.com",
+  "ticket_tier": "General Admission",
+  "purchase_date": "2025-02-13"
+},
+{
+  "_id": {
+    "$oid": "6787d979f0d92e4a8b48d007"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf8f"
+  },
+  "customer_name": "Isabella Martinez",
+  "email": "isabella.martinez@example.com",
+  "ticket_tier": "VIP Lounge",
+  "purchase_date": "2025-02-14"
+},
+{
+  "_id": {
+    "$oid": "6787d979f0d92e4a8b48d008"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf8f"
+  },
+  "customer_name": "Lucas Anderson",
+  "email": "lucas.anderson@example.com",
+  "ticket_tier": "All Access",
+  "purchase_date": "2025-02-15"
+},
+{
+  "_id": {
+    "$oid": "6787d979f0d92e4a8b48d009"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf8f"
+  },
+  "customer_name": "Mia Taylor",
+  "email": "mia.taylor@example.com",
+  "ticket_tier": "Group Pack",
+  "purchase_date": "2025-02-16"
+},
+{
+  "_id": {
+    "$oid": "6787d979f0d92e4a8b48d00a"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf8f"
+  },
+  "customer_name": "Henry Thomas",
+  "email": "henry.thomas@example.com",
+  "ticket_tier": "All Access",
+  "purchase_date": "2025-02-17"
+},
+{
+  "_id": {
+    "$oid": "6787d979f0d92e4a8b48d00b"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf8f"
+  },
+  "customer_name": "Henry Thomas",
+  "email": "henry.thomas@example.com",
+  "ticket_tier": "VIP Lounge",
+  "purchase_date": "2025-02-18"
+},
+{
+  "_id": {
+    "$oid": "6787da04f0d92e4a8b48d00c"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf90"
+  },
+  "customer_name": "Alexander Harris",
+  "email": "alexander.harris@example.com",
+  "ticket_tier": "General Entry",
+  "purchase_date": "2025-02-19"
+},
+{
+  "_id": {
+    "$oid": "6787da04f0d92e4a8b48d00d"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf90"
+  },
+  "customer_name": "Harper Clark",
+  "email": "harper.clark@example.com",
+  "ticket_tier": "VIP Dining",
+  "purchase_date": "2025-02-20"
+},
+{
+  "_id": {
+    "$oid": "6787da04f0d92e4a8b48d00e"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf90"
+  },
+  "customer_name": "Harper Clark",
+  "email": "harper.clark@example.com",
+  "ticket_tier": "Priority Entry",
+  "purchase_date": "2025-02-21"
+},
+{
+  "_id": {
+    "$oid": "6787da04f0d92e4a8b48d00f"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf90"
+  },
+  "customer_name": "Harper Clark",
+  "email": "harper.clark@example.com",
+  "ticket_tier": "Chef's Table",
+  "purchase_date": "2025-02-22"
+},
+{
+  "_id": {
+    "$oid": "6787da04f0d92e4a8b48d010"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf90"
+  },
+  "customer_name": "Matthew Hall",
+  "email": "matthew.hall@example.com",
+  "ticket_tier": "Corporate Package",
+  "purchase_date": "2025-02-23"
+},
+{
+  "_id": {
+    "$oid": "6787da04f0d92e4a8b48d011"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf90"
+  },
+  "customer_name": "Abigail Allen",
+  "email": "abigail.allen@example.com",
+  "ticket_tier": "VIP Dining",
+  "purchase_date": "2025-02-24"
+},
+{
+  "_id": {
+    "$oid": "6787da04f0d92e4a8b48d012"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf90"
+  },
+  "customer_name": "Joseph Young",
+  "email": "joseph.young@example.com",
+  "ticket_tier": "Chef's Table",
+  "purchase_date": "2025-02-25"
+},
+{
+  "_id": {
+    "$oid": "6787da04f0d92e4a8b48d013"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf90"
+  },
+  "customer_name": "David King",
+  "email": "david.king@example.com",
+  "ticket_tier": "VIP Dining",
+  "purchase_date": "2025-02-26"
+},
+{
+  "_id": {
+    "$oid": "6787da04f0d92e4a8b48d014"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf90"
+  },
+  "customer_name": "David King",
+  "email": "david.king@example.com",
+  "ticket_tier": "Priority Entry",
+  "purchase_date": "2025-02-27"
+},
+{
+  "_id": {
+    "$oid": "6787da73f0d92e4a8b48d015"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf91"
+  },
+  "customer_name": "Lily Wright",
+  "email": "lily.wright@example.com",
+  "ticket_tier": "Basic Retreat",
+  "purchase_date": "2025-02-28"
+},
+{
+  "_id": {
+    "$oid": "6787da73f0d92e4a8b48d016"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf91"
+  },
+  "customer_name": "Samuel Lopez",
+  "email": "samuel.lopez@example.com",
+  "ticket_tier": "Advanced Retreat",
+  "purchase_date": "2025-03-01"
+},
+{
+  "_id": {
+    "$oid": "6787da73f0d92e4a8b48d017"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf91"
+  },
+  "customer_name": "Zoe Hill",
+  "email": "zoe.hill@example.com",
+  "ticket_tier": "Full Experience",
+  "purchase_date": "2025-03-02"
+},
+{
+  "_id": {
+    "$oid": "6787da73f0d92e4a8b48d018"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf91"
+  },
+  "customer_name": "Grace Green",
+  "email": "grace.green@example.com",
+  "ticket_tier": "Basic Retreat",
+  "purchase_date": "2025-03-03"
+},
+{
+  "_id": {
+    "$oid": "6787da73f0d92e4a8b48d019"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf91"
+  },
+  "customer_name": "Grace Green",
+  "email": "grace.green@example.com",
+  "ticket_tier": "Basic Retreat",
+  "purchase_date": "2025-03-04"
+},
+{
+  "_id": {
+    "$oid": "6787dadcf0d92e4a8b48d01a"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf92"
+  },
+  "customer_name": "Andrew Adams",
+  "email": "andrew.adams@example.com",
+  "ticket_tier": "Standard Entry",
+  "purchase_date": "2025-03-05"
+},
+{
+  "_id": {
+    "$oid": "6787dadcf0d92e4a8b48d01b"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf92"
+  },
+  "customer_name": "Victoria Baker",
+  "email": "victoria.baker@example.com",
+  "ticket_tier": "VIP Access",
+  "purchase_date": "2025-03-06"
+},
+{
+  "_id": {
+    "$oid": "6787dadcf0d92e4a8b48d01c"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf92"
+  },
+  "customer_name": "Andrew Adams",
+  "email": "andrew.adams@example.com",
+  "ticket_tier": "Standard Entry",
+  "purchase_date": "2025-03-07"
+},
+{
+  "_id": {
+    "$oid": "6787dadcf0d92e4a8b48d01d"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf92"
+  },
+  "customer_name": "Emma Johnson",
+  "email": "emma.johnson@example.com",
+  "ticket_tier": "Standard Entry",
+  "purchase_date": "2025-03-08"
+},
+{
+  "_id": {
+    "$oid": "6787dadcf0d92e4a8b48d01e"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf92"
+  },
+  "customer_name": "Michael Williams",
+  "email": "michael.williams@example.com",
+  "ticket_tier": "VIP Access",
+  "purchase_date": "2025-03-09"
+},
+{
+  "_id": {
+    "$oid": "6787dadcf0d92e4a8b48d01f"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf92"
+  },
+  "customer_name": "James Jones",
+  "email": "james.jones@example.com",
+  "ticket_tier": "Standard Entry",
+  "purchase_date": "2025-03-10"
+},
+{
+  "_id": {
+    "$oid": "6787dadcf0d92e4a8b48d020"
+  },
+  "event_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf92"
+  },
+  "customer_name": "James Jones",
+  "email": "james.jones@example.com",
+  "ticket_tier": "Standard Entry",
+  "purchase_date": "2025-03-11"
+}]

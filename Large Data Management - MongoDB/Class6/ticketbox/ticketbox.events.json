@@ -1,0 +1,285 @@
+[{
+  "_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf89"
+  },
+  "event_name": "Live Music Concert 2025",
+  "event_type": "Music Show",
+  "location": "Ho Chi Minh City",
+  "venue": "Saigon Opera House",
+  "date": "2025-01-20",
+  "time": "19:00",
+  "ticket_tiers": [
+    {
+      "tier": "General Admission",
+      "price": 50000,
+      "available_tickets": 300
+    },
+    {
+      "tier": "VIP",
+      "price": 120000,
+      "available_tickets": 100
+    }
+  ]
+},
+{
+  "_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf8a"
+  },
+  "event_name": "Tech Innovations 2025",
+  "event_type": "Seminar",
+  "location": "Hanoi",
+  "venue": "National Convention Center",
+  "date": "2025-02-10",
+  "time": "09:00",
+  "ticket_tiers": [
+    {
+      "tier": "Regular",
+      "price": 100000,
+      "available_tickets": 200
+    },
+    {
+      "tier": "Premium",
+      "price": 300000,
+      "available_tickets": 50
+    },
+    {
+      "tier": "Student",
+      "price": 50000,
+      "available_tickets": 50
+    }
+  ]
+},
+{
+  "_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf8b"
+  },
+  "event_name": "Cultural Fair 2025",
+  "event_type": "Exhibition",
+  "location": "Da Nang",
+  "venue": "City Square",
+  "date": "2025-03-01",
+  "time": "15:00",
+  "ticket_tiers": [
+    {
+      "tier": "Standard Pass",
+      "price": 50000,
+      "available_tickets": 500
+    },
+    {
+      "tier": "VIP Access",
+      "price": 150000,
+      "available_tickets": 100
+    }
+  ]
+},
+{
+  "_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf8c"
+  },
+  "event_name": "Startup Conference 2025",
+  "event_type": "Conference",
+  "location": "Hanoi",
+  "venue": "Hilton Hanoi Opera",
+  "date": "2025-03-20",
+  "time": "08:00",
+  "ticket_tiers": [
+    {
+      "tier": "Basic",
+      "price": 200000,
+      "available_tickets": 150
+    },
+    {
+      "tier": "Gold",
+      "price": 400000,
+      "available_tickets": 50
+    },
+    {
+      "tier": "Platinum",
+      "price": 600000,
+      "available_tickets": 20
+    }
+  ]
+},
+{
+  "_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf8d"
+  },
+  "event_name": "International Film Festival",
+  "event_type": "Film",
+  "location": "Ho Chi Minh City",
+  "venue": "Galaxy Cinema",
+  "date": "2025-04-05",
+  "time": "18:30",
+  "ticket_tiers": [
+    {
+      "tier": "Regular Seat",
+      "price": 70000,
+      "available_tickets": 200
+    },
+    {
+      "tier": "Deluxe Seat",
+      "price": 150000,
+      "available_tickets": 50
+    },
+    {
+      "tier": "Balcony",
+      "price": 200000,
+      "available_tickets": 30
+    }
+  ]
+},
+{
+  "_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf8e"
+  },
+  "event_name": "Art Exhibition 2025",
+  "event_type": "Exhibition",
+  "location": "Hue",
+  "venue": "Royal Museum",
+  "date": "2025-04-15",
+  "time": "10:00",
+  "ticket_tiers": [
+    {
+      "tier": "General Admission",
+      "price": 50000,
+      "available_tickets": 300
+    },
+    {
+      "tier": "VIP",
+      "price": 120000,
+      "available_tickets": 100
+    },
+    {
+      "tier": "Family Pack",
+      "price": 200000,
+      "available_tickets": 50
+    },
+    {
+      "tier": "Student",
+      "price": 30000,
+      "available_tickets": 50
+    }
+  ]
+},
+{
+  "_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf8f"
+  },
+  "event_name": "Beach Party 2025",
+  "event_type": "Music Show",
+  "location": "Nha Trang",
+  "venue": "Beachside Stage",
+  "date": "2025-05-10",
+  "time": "20:00",
+  "ticket_tiers": [
+    {
+      "tier": "General Admission",
+      "price": 80000,
+      "available_tickets": 400
+    },
+    {
+      "tier": "VIP Lounge",
+      "price": 180000,
+      "available_tickets": 50
+    },
+    {
+      "tier": "All Access",
+      "price": 250000,
+      "available_tickets": 30
+    },
+    {
+      "tier": "Group Pack",
+      "price": 500000,
+      "available_tickets": 20
+    }
+  ]
+},
+{
+  "_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf90"
+  },
+  "event_name": "World Food Expo 2025",
+  "event_type": "Expo",
+  "location": "Ho Chi Minh City",
+  "venue": "SECC Center",
+  "date": "2025-05-20",
+  "time": "11:00",
+  "ticket_tiers": [
+    {
+      "tier": "General Entry",
+      "price": 60000,
+      "available_tickets": 500
+    },
+    {
+      "tier": "Priority Entry",
+      "price": 150000,
+      "available_tickets": 200
+    },
+    {
+      "tier": "VIP Dining",
+      "price": 300000,
+      "available_tickets": 100
+    },
+    {
+      "tier": "Chef's Table",
+      "price": 500000,
+      "available_tickets": 20
+    },
+    {
+      "tier": "Corporate Package",
+      "price": 1000000,
+      "available_tickets": 10
+    }
+  ]
+},
+{
+  "_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf91"
+  },
+  "event_name": "Yoga and Wellness Retreat",
+  "event_type": "Workshop",
+  "location": "Da Lat",
+  "venue": "Mountain Resort",
+  "date": "2025-06-01",
+  "time": "07:00",
+  "ticket_tiers": [
+    {
+      "tier": "Basic Retreat",
+      "price": 120000,
+      "available_tickets": 200
+    },
+    {
+      "tier": "Advanced Retreat",
+      "price": 250000,
+      "available_tickets": 100
+    },
+    {
+      "tier": "Full Experience",
+      "price": 500000,
+      "available_tickets": 50
+    }
+  ]
+},
+{
+  "_id": {
+    "$oid": "6787cd13f0d92e4a8b48cf92"
+  },
+  "event_name": "National Science Fair",
+  "event_type": "Fair",
+  "location": "Can Tho",
+  "venue": "University Campus",
+  "date": "2025-06-15",
+  "time": "09:00",
+  "ticket_tiers": [
+    {
+      "tier": "Standard Entry",
+      "price": 40000,
+      "available_tickets": 500
+    },
+    {
+      "tier": "VIP Access",
+      "price": 100000,
+      "available_tickets": 50
+    }
+  ]
+}]
