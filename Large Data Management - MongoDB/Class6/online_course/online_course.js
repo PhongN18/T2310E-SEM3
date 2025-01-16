@@ -71,3 +71,51 @@ db.createView(
 )
 
 // Numbers of pass and fail students
+db.createView(
+    "pass_fail_summary",
+    "test_results",
+    [
+        {
+            $lookup: {
+                from: "tests",
+                localField: "testId",
+                foreignField: "testId",
+                as: "testDetails"
+            }
+        },
+        { $unwind: "$testDetails" },
+        {
+            $lookup: {
+                from: "courses",
+                localField: "testDetails.courseId",
+                foreignField: "courseId",
+                as: "courseDetails"
+            }
+        },
+        { $unwind: "$courseDetails" },
+        {
+            $group: {
+                _id: { courseId: "$courseDetails.courseId", courseName: "$courseDetails.name", testId: "$testDetails.testId", testTitle: "$testDetails.title" },
+                testTaken: { $sum: 1 },
+                passed: { $sum: { $cond: [{ $gte: ["$score", { $divide: ["$testDetails.totalMarks", 2] }] }, 1, 0] } },
+                failed: { $sum: { $cond: [{ $lt: ["$score", { $divide: ["$testDetails.totalMarks", 2] }] }, 1, 0] } },
+            }
+        },
+        {
+            $addFields: {
+                passedPercentage: { $sum: { $divide: [{ $multiply: ["$passed", 100] }, "$testTaken"] } }
+            }
+        },
+        {
+            $project: {
+                _id: 0,
+                courseName: "$_id.courseName",
+                testTitle: "$_id.testTitle",
+                testTaken: "$testTaken",
+                passed: "$passed",
+                failed: "$failed",
+                passedPercentage: { $round: ["$passedPercentage", 2]} 
+            }
+        }
+    ]
+)
