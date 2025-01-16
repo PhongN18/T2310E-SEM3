@@ -1,3 +1,38 @@
+// Data structure
+// Events collection
+[{
+    "_id": ObjectId("..."), // Unique identifier for the event
+    "event_name": "String", // Name of the event
+    "event_date": "Date", // Date of the event
+    "location": "String", // Location of the event
+    "ticket_tiers": [ // Array of ticket tiers available for the event
+        {
+            "tier": "String", // Name of the ticket tier
+            "price": "Number" // Price of the ticket tier
+        },
+    ],
+    "description": "String" // Description of the event
+}]
+
+// Tickets collection
+[{
+    "_id": ObjectId("..."), // Unique identifier for the ticket
+    "event_id": ObjectId("..."), // Event ID the ticket is for
+    "customer_name": "String", // Name of the customer who purchased the ticket
+    "email": "String", // Email of the customer who purchased the ticket
+    "ticket_tier": "String", // Tier of the ticket purchased
+    "purchase_date": "Date" // Date the ticket was purchased
+}]
+
+// Customers collection
+[{
+    "_id": ObjectId("..."), // Unique identifier for the customer
+    "name": "String", // Customer's name
+    "email": "String", // Customer's email
+    "phone_number": "String", // Customer's phone number
+    "purchased_tickets": ["ObjectId"] // Array of ticket IDs purchased by the customer
+}]
+
 // List of upcoming events
 db.createView(
 	"upcoming_events",
