@@ -70,7 +70,7 @@ db.createView(
     ]
 )
 
-// Numbers of pass and fail students
+// Numbers of pass and fail students (>= 60%)
 db.createView(
     "pass_fail_summary",
     "test_results",
@@ -97,8 +97,8 @@ db.createView(
             $group: {
                 _id: { courseId: "$courseDetails.courseId", courseName: "$courseDetails.name", testId: "$testDetails.testId", testTitle: "$testDetails.title" },
                 testTaken: { $sum: 1 },
-                passed: { $sum: { $cond: [{ $gte: ["$score", { $divide: ["$testDetails.totalMarks", 2] }] }, 1, 0] } },
-                failed: { $sum: { $cond: [{ $lt: ["$score", { $divide: ["$testDetails.totalMarks", 2] }] }, 1, 0] } },
+                passed: { $sum: { $cond: [{ $gte: ["$score", { $divide: [{ $multiply: ["$testDetails.totalMarks", 3] }, 5] }] }, 1, 0] } },
+                failed: { $sum: { $cond: [{ $lt: ["$score", { $divide: [{ $multiply: ["$testDetails.totalMarks", 3] }, 5] }] }, 1, 0] } },
             }
         },
         {
@@ -117,5 +117,57 @@ db.createView(
                 passedPercentage: { $round: ["$passedPercentage", 2]} 
             }
         }
+    ]
+)
+
+// Active students(based on tests taken) each month and most active courses
+db.createView(
+    "active_students_per_month",
+    "test_results",
+    [
+        {
+            $lookup: {
+                from: "tests",
+                localField: "testId",
+                foreignField: "testId",
+                as: "testDetails"
+            }
+        },
+        { $unwind: "$testDetails" },
+        {
+            $group: {
+                _id: { year: { $year: "$dateTaken" }, month: { $month: "$dateTaken" }, courseId: "$testDetails.courseId" },
+                testsTaken: { $sum: 1 }
+            }
+        },
+        { $sort: { testsTaken: -1 } },
+        {
+            $group: {
+                _id: { year: "$_id.year", month: "$_id.month" },
+                total: { $sum: "$testsTaken" },
+                courseId: { $first: "$_id.courseId" },
+                students: { $first: "$testsTaken" }
+            }
+        },
+        {
+            $lookup: {
+                from: "courses",
+                localField: "courseId",
+                foreignField: "courseId",
+                as: "courseDetails"
+            }
+        },
+        { $unwind: "$courseDetails" },
+        {
+            $project: {
+                _id: 0,
+                year: "$_id.year",
+                month: "$_id.month",
+                activeStudents: "$total",
+                mostActiveCourse: "$courseDetails.name",
+                students: "$students"
+            }
+        },
+        { $sort: { year: 1, month: 1 } }
     ]
 )
