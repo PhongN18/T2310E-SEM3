@@ -7,38 +7,91 @@ const client = new MongoClient(uri);
 const dbName = "food_delivery";
 const db = client.db(dbName);
 const menuCollection = db.collection("menu");
+const storageCollection = db.collection("storage");
 const ordersCollection = db.collection("orders");
 
 let nextId = 1
 
-const sampleData = [
-    { _id: nextId++, item_name: "Burger", category: "Fast Food", price: 50000 },
-    { _id: nextId++, item_name: "Pizza", category: "Fast Food", price: 100000 },
-    { _id: nextId++, item_name: "Fried Chicken", category: "Fast Food", price: 75000 },
-    { _id: nextId++, item_name: "Pho", category: "Vietnamese", price: 45000 },
-    { _id: nextId++, item_name: "Banh Mi", category: "Vietnamese", price: 30000 },
-    { _id: nextId++, item_name: "Spring Roll", category: "Vietnamese", price: 40000 },
-    { _id: nextId++, item_name: "Coke", category: "Beverage", price: 20000 },
-    { _id: nextId++, item_name: "Pepsi", category: "Beverage", price: 20000 },
-    { _id: nextId++, item_name: "Coffee", category: "Beverage", price: 30000 },
-    { _id: nextId++, item_name: "Tea", category: "Beverage", price: 15000 }
-];
-
 const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
-});
+})
 
-async function initializeSampleData() {
-    const existingMenuItems = await menuCollection.countDocuments();
-    if (existingMenuItems === 0) {
-        console.log("Khởi tạo 10 món ăn mẫu...");
-        await menuCollection.insertMany(sampleData);
-    } else {
-        // Lấy ID lớn nhất có trong database
-        const maxIdItem = await menuCollection.find().sort({ _id: -1 }).limit(1).toArray();
-        nextId = maxIdItem.length > 0 ? maxIdItem[0]._id + 1 : 1;
+function randomDate(start, end) {
+    const startTimestamp = start.getTime();
+    const endTimestamp = end.getTime();
+    const randomTimestamp = startTimestamp + Math.random() * (endTimestamp - startTimestamp);
+    return new Date(randomTimestamp);
+}
+
+const startDate = new Date(2024, 7, 1);
+const endDate = new Date(2025, 0, 17);
+
+async function initializeData() {
+    console.log("Inserting data...");
+
+    // Xóa dữ liệu cũ nếu có
+    await menuCollection.deleteMany({})
+    await storageCollection.deleteMany({})
+    await ordersCollection.deleteMany({})
+    // Sinh dữ liệu mẫu
+
+    const storageData = []
+    for (let i = 1; i <= 100; i++) {
+        storageData.push({
+            _id: `I0${String(i).padStart(3, "0")}`,
+            name: `Ingredient_${i}`,
+            inStock: Math.round(Math.random() * 200)
+        })
     }
+    await storageCollection.insertMany(storageData)
+    console.log("Storage data inserted.")
+
+    const menuData = [];
+    const categories = ['Fast Food', 'Beverage', 'Vietnamese', 'Chinese', 'Italian']
+    for (let i = 1; i <= 100; i++) {
+        const noOfIngredients = Math.round(Math.random() * 9) + 1
+        const ingredients = Array.from({ length: noOfIngredients }, () => {
+            const randomIndex = Math.floor(Math.random() * storageData.length);
+            return storageData[randomIndex]._id;
+        })
+        menuData.push({
+            _id: `MI0${String(i).padStart(3, "0")}`,
+            name: `Menu_item_${i}`,
+            category: categories[Math.floor(Math.random() * categories.length)],
+            price: (Math.floor(Math.random() * 200) + 50) * 1000,
+            ingredients: ingredients
+        })
+    }
+    await menuCollection.insertMany(menuData);
+    console.log("Menu data inserted.");
+    
+    const ordersData = []
+    for (let i = 1; i <= 1000000; i++) {
+        const noOfItems = Math.round(Math.random() * 4) + 1
+        const items = Array.from({ length: noOfItems }, () => {
+            const randomIndex = Math.floor(Math.random() * menuData.length);
+            return {
+                itemId: menuData[randomIndex]._id,
+                quantity: Math.round(Math.random() * 4) + 1 // Random quantity between 1 and 5
+            };
+        })
+
+        const total = items.reduce((total, item) => {
+            const menuItem = menuData.find(menu => menu._id === item.itemId)
+            return total + (menuItem.price * item.quantity)
+        }, 0)
+
+        ordersData.push({
+            _id: 'ORD' + String(i).padStart(9, '0'),
+            items: items,
+            total: total,
+            address: `Address_${i}`,
+            createdAt: randomDate(startDate, endDate)
+        })
+    }
+    await ordersCollection.insertMany(ordersData)
+    console.log("Orders data inserted.")
 }
 
 function showMenu() {
@@ -240,8 +293,8 @@ async function deleteMenuItem(collection) {
 async function main() {
     try {
         await client.connect();
-        await initializeSampleData()
         console.log("Kết nối đến MongoDB thành công!");
+        await initializeData()
         showMenu();
     } catch (error) {
         console.error("Lỗi kết nối MongoDB:", error);
