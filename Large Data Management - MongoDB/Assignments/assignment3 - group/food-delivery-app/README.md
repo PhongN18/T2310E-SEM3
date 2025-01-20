@@ -1,7 +1,9 @@
 # Presentation
+
 [Slides](https://www.canva.com/design/DAGcKtvxI04/FdgGpluN9OFYzxWiT6fQyA/view?utm_content=DAGcKtvxI04&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hede7266a08)
 
 # Chạy dự án
+
 ## Khởi tạo dự án bằng nodejs:
 
 ```
@@ -33,9 +35,12 @@ food-delivery-app/
 ```
 use food_delivery
 db.createCollection('menu')
+db.createCollection('storage')
+db.createCollection('orders')
 ```
 
 ## Chạy chương trình
+
 ```
 node app.js
 ```

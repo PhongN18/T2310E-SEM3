@@ -2,13 +2,14 @@ const { MongoClient } = require("mongodb");
 const readline = require("readline");
 
 // Kết nối MongoDB
-const uri = "mongodb://localhost:27017";
-const client = new MongoClient(uri);
-const dbName = "food_delivery";
-const db = client.db(dbName);
-const menuCollection = db.collection("menu");
-const storageCollection = db.collection("storage");
-const ordersCollection = db.collection("orders");
+const uri = "mongodb://localhost:27017"
+const client = new MongoClient(uri)
+const dbName = "food_delivery"
+const db = client.db(dbName)
+const menuCollection = db.collection("menu")
+const storageCollection = db.collection("storage")
+const ordersCollection = db.collection("orders")
+const categories = ['Fast Food', 'Beverage', 'Vietnamese', 'Chinese', 'Italian']
 
 let nextId = 1
 
@@ -18,14 +19,14 @@ const rl = readline.createInterface({
 })
 
 function randomDate(start, end) {
-    const startTimestamp = start.getTime();
-    const endTimestamp = end.getTime();
-    const randomTimestamp = startTimestamp + Math.random() * (endTimestamp - startTimestamp);
-    return new Date(randomTimestamp);
+    const startTimestamp = start.getTime()
+    const endTimestamp = end.getTime()
+    const randomTimestamp = startTimestamp + Math.random() * (endTimestamp - startTimestamp)
+    return new Date(randomTimestamp)
 }
 
-const startDate = new Date(2024, 7, 1);
-const endDate = new Date(2025, 0, 17);
+const startDate = new Date(2024, 7, 1)
+const endDate = new Date(2025, 0, 17)
 
 async function initializeData() {
     console.log("Inserting data...");
@@ -48,7 +49,6 @@ async function initializeData() {
     console.log("Storage data inserted.")
 
     const menuData = [];
-    const categories = ['Fast Food', 'Beverage', 'Vietnamese', 'Chinese', 'Italian']
     for (let i = 1; i <= 100; i++) {
         const noOfIngredients = Math.round(Math.random() * 9) + 1
         const ingredients = Array.from({ length: noOfIngredients }, () => {
@@ -59,7 +59,7 @@ async function initializeData() {
             _id: `MI0${String(i).padStart(3, "0")}`,
             name: `Menu_item_${i}`,
             category: categories[Math.floor(Math.random() * categories.length)],
-            price: (Math.floor(Math.random() * 200) + 50) * 1000,
+            price: (Math.floor(Math.random() * 1000) + 30) * 1000,
             ingredients: ingredients
         })
     }
@@ -103,7 +103,8 @@ function showMenu() {
         2. Xem danh sách món ăn (Read)
         3. Cập nhật món ăn (Update)
         4. Xóa món ăn (Delete)
-        5. Thoát
+        5. Tìm kiếm (Search)
+        6. Thoát
     `);
 
     rl.question("Chọn một chức năng: ", async (choice) => {
@@ -121,6 +122,9 @@ function showMenu() {
                 await deleteMenuItem(menuCollection);
                 break;
             case "5":
+                await searchItem(menuCollection);
+                break;
+            case "6":
                 console.log("Thoát ứng dụng. Tạm biệt!");
                 rl.close();
                 client.close();
@@ -149,7 +153,6 @@ function validatePrice(price, callback) {
     }
     return parsedPrice;
 }
-
 
 // Thêm món ăn mới
 async function createMenuItem(collection) {
@@ -201,32 +204,32 @@ async function createMenuItem(collection) {
     // Validate tên món ăn
     rl.question("Nhập tên món ăn: ", async (item_name) => {
         if (!item_name.trim()) {
-            console.log("Tên món ăn không được để trống. Quay lại menu.");
-            return showMenu();
+            console.log("Tên món ăn không được để trống. Quay lại menu.")
+            return showMenu()
         }
 
         item_name = capitalize(item_name)
         const exists = await checkItemExists(item_name);
         if (exists) {
-            console.log("Món ăn đã tồn tại trong cơ sở dữ liệu.");
-            return showMenu();
+            console.log("Món ăn đã tồn tại trong cơ sở dữ liệu.")
+            return showMenu()
         }
-        askCategory(item_name);
-    });
+        askCategory(item_name)
+    })
 }
 
 // Xem danh sách món ăn
 async function readMenuItems(collection) {
     try {
         const items = await collection.find().toArray();
-        console.log("Danh sách món ăn:");
+        console.log("Danh sách món ăn:")
         items.forEach((item, index) => {
-            console.log(`${index + 1}. ID: ${item._id}, ${item.item_name} - ${item.category} - ${item.price} VND`);
+            console.log(`${index + 1}. ID: ${item._id}, ${item.item_name} - ${item.category} - ${item.price} VND`)
         });
     } catch (error) {
-        console.error("Lỗi khi lấy danh sách món ăn:", error);
+        console.error("Lỗi khi lấy danh sách món ăn:", error)
     }
-    showMenu();
+    showMenu()
 }
 
 // Cập nhật món ăn
@@ -288,6 +291,125 @@ async function deleteMenuItem(collection) {
         }
         showMenu();
     });
+}
+
+async function searchItem(collection) {
+    console.log(`
+        ================================
+        LỰA CHỌN TÌM KIẾM
+        ================================
+        1. Tìm kiếm theo tên món ăn
+        2. Tìm kiếm theo danh mục
+        3. Tìm kiếm theo khoảng giá
+        4. Quay lại
+    `);
+
+    rl.question("Chọn một chức năng: ", async (choice) => {
+        switch (choice.trim()) {
+            case "1":
+                searchByName(collection);
+                break;
+            case "2":
+                searchByCategory(collection);
+                break;
+            case "3":
+                searchByPrice(collection);
+                break;
+            case "4":
+                showMenu();
+                break;
+            default:
+                console.log("Lựa chọn không hợp lệ. Vui lòng thử lại.");
+                searchItem(collection);
+        }
+    });
+}
+
+async function searchByName(collection) {
+    rl.question("Nhập tên món ăn cần tìm: ", async (name) => {
+        try {
+            const items = await collection.find({ item_name: { $regex: new RegExp(name, 'i') } }).toArray();
+            if (items.length === 0) {
+                console.log("Không tìm thấy món ăn với tên này.");
+            } else {
+                console.log("Kết quả tìm kiếm:");
+                items.forEach((item, index) => {
+                    console.log(`${index + 1}. ID: ${item._id}, ${item.name} - ${item.category} - ${item.price} VND`)
+                });
+            }
+        } catch (error) {
+            console.error("Lỗi khi tìm kiếm món ăn:", error);
+        }
+        searchItem(collection);
+    });
+}
+
+async function searchByCategory(collection) {
+    console.log(`
+        ================================
+        LỰA CHỌN DANH MỤC
+        ================================
+        1. Fast Food
+        2. Beverage
+        3. Vietnamese
+        4. Chinese
+        5. Italian
+        6. Quay lại
+    `);
+
+    rl.question("Chọn một danh mục: ", async (choice) => {
+        const index = parseInt(choice.trim()) - 1;
+        if (index >= 0 && index < categories.length) {
+            try {
+                const items = await collection.find({ category: categories[index] }).toArray();
+                if (items.length === 0) {
+                    console.log("Không tìm thấy món ăn trong danh mục này.");
+                } else {
+                    console.log("Kết quả tìm kiếm:");
+                    items.forEach((item, index) => {
+                        console.log(`${index + 1}. ID: ${item._id}, ${item.name} - ${item.category} - ${item.price} VND`);
+                    });
+                }
+            } catch (error) {
+                console.error("Lỗi khi tìm kiếm món ăn:", error);
+            }
+            searchItem(collection);
+        } else if (choice.trim() === "6") {
+            searchItem(collection);
+        } else {
+            console.log("Lựa chọn không hợp lệ. Vui lòng thử lại.");
+            searchByCategory(collection);
+        }
+    });
+}
+
+async function searchByPrice(collection) {
+    rl.question("Nhập giá thấp nhất (nghìn đồng): ", (minPrice) => {
+        const parsedMinPrice = validatePrice(minPrice, () => searchByPrice(collection));
+        if (!parsedMinPrice) return;
+
+        rl.question("Nhập giá cao nhất (nghìn đồng): ", async (maxPrice) => {
+            const parsedMaxPrice = validatePrice(maxPrice, () => searchByPrice(collection));
+            if (!parsedMaxPrice) return;
+
+            try {
+                const items = await collection.find({
+                    price: { $gte: parsedMinPrice * 1000, $lte: parsedMaxPrice * 1000 }
+                }).sort({ price: 1 }).toArray();
+                if (items.length === 0) {
+                    console.log("Không tìm thấy món ăn trong khoảng giá này.");
+                } else {
+                    console.log("Kết quả tìm kiếm (giá từ thấp đến cao):");
+                    items.forEach((item, index) => {
+                        console.log(`${index + 1}. ID: ${item._id}, ${item.name} - ${item.category} - ${item.price} VND`);
+                    });
+                }
+            } catch (error) {
+                console.error("Lỗi khi tìm kiếm món ăn:", error);
+            }
+            searchItem(collection);
+        });
+    })
 }
 
 async function main() {
