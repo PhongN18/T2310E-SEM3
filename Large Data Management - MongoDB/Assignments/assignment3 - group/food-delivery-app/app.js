@@ -360,31 +360,31 @@ async function initializeData() {
                     orderCount: "$orderCount",
                 }
             },
-            { $sort: { _id: 1 } },
+            { $sort: { year: 1, month: 1 } },
         ],
     });
     //9. Doanh thu theo ngày trong một tháng cụ thể
-    await db.createCollection("RevenueByDayInASpecificMonth", {
-        viewOn: ordersCollection.s.namespace.collection,
-        pipeline: [
-            {
-                $match: {
-                    createdAt: {
-                        //Hãy điền thay vào bằng 1 thời gian cụ thể có tồn tại
-                        $gte: new Date("2024-12-01"),
-                        $lte: new Date("2024-12-31"),
-                    },
-                },
-            },
-            {
-                $group: {
-                    _id: { $dayOfMonth: "$createdAt" },
-                    dailyRevenue: { $sum: "$total" },
-                },
-            },
-            { $sort: { _id: 1 } },
-        ],
-    });
+    // await db.createCollection("RevenueByDayInASpecificMonth", {
+    //     viewOn: ordersCollection.s.namespace.collection,
+    //     pipeline: [
+    //         {
+    //             $match: {
+    //                 createdAt: {
+    //                     //Hãy điền thay vào bằng 1 thời gian cụ thể có tồn tại
+    //                     $gte: new Date("2024-12-01"),
+    //                     $lte: new Date("2024-12-31"),
+    //                 },
+    //             },
+    //         },
+    //         {
+    //             $group: {
+    //                 _id: { $dayOfMonth: "$createdAt" },
+    //                 dailyRevenue: { $sum: "$total" },
+    //             },
+    //         },
+    //         { $sort: { _id: 1 } },
+    //     ],
+    // });
     console.log("All views created successfully!");
 }
 
@@ -505,7 +505,7 @@ function handleMenuManagement() {
         }
     
         // Validate danh mục món ăn
-        function askCategory(itemName) {
+        function askCategory(itemName, ingredients) {
             console.log("Chọn danh mục món ăn:");
             categories.forEach((category, index) => {
                 console.log(`${index + 1}. ${category}`);
@@ -514,17 +514,17 @@ function handleMenuManagement() {
                 const categoryIndex = parseInt(choice.trim(), 10) - 1;
                 if (categoryIndex < 0 || categoryIndex >= categories.length) {
                     console.log("Lựa chọn không hợp lệ. Vui lòng thử lại.");
-                    return askCategory(itemName);
+                    return askCategory(itemName, ingredients);
                 }
                 const category = categories[categoryIndex];
-                askPrice(itemName, category);
+                askPrice(itemName, category, ingredients);
             });
         }
     
         // Validate giá
-        function askPrice(itemName, category) {
+        function askPrice(itemName, category, ingredients) {
             rl.question("Nhập giá món ăn: ", async (price) => {
-                const parsedPrice = validatePrice(price, () => askPrice(itemName, category));
+                const parsedPrice = validatePrice(price, () => askPrice(itemName, category, ingredients));
                 if (!parsedPrice) return;
     
                 try {
@@ -533,6 +533,7 @@ function handleMenuManagement() {
                         itemName,
                         category,
                         price: parsedPrice,
+                        ingredients
                     };
                     await collection.insertOne(newItem);
                     newItem.price = parsedPrice.toLocaleString()
@@ -557,22 +558,50 @@ function handleMenuManagement() {
                 console.log("Món ăn đã tồn tại trong cơ sở dữ liệu.")
                 return showStoreMenu()
             }
-            askCategory(itemName)
+            askIngredients(itemName);
         })
+    
+        // Validate danh sách nguyên liệu
+        function askIngredients(itemName) {
+            const ingredients = [];
+            async function addIngredient() {
+                rl.question("Nhập ID nguyên liệu (để trống để kết thúc): ", async (ingredientId) => {
+                    if (!ingredientId.trim()) {
+                        if (ingredients.length === 0) {
+                            console.log("Danh sách nguyên liệu không được để trống.");
+                            return addIngredient();
+                        }
+                        return askCategory(itemName, ingredients);
+                    }
+                    const ingredient = await storageCollection.findOne({ _id: ingredientId.trim().toUpperCase() });
+                    if (!ingredient) {
+                        console.log("Không tìm thấy nguyên liệu với ID này.");
+                        return addIngredient();
+                    }
+                    ingredients.push(ingredientId.trim().toUpperCase());
+                    addIngredient();
+                });
+            }
+            addIngredient();
+        }
     }
 
     // Xem danh sách món ăn
     async function readMenuItems(collection) {
         try {
             const items = await collection.find().toArray();
-            console.log("Danh sách món ăn:")
+            console.log("Danh sách món ăn:");
             items.forEach((item, index) => {
-                console.log(`${index + 1}. ID: ${item._id}, ${item.itemName} - ${item.category} - ${item.price.toLocaleString()} VND`)
+                console.log(`${index + 1}. ID: ${item._id}, ${item.itemName} - ${item.category} - ${item.price.toLocaleString()} VND`);
+                console.log("   Nguyên liệu:");
+                item.ingredients.forEach((ingredientId, idx) => {
+                    console.log(`     ${idx + 1}. ID: ${ingredientId}`);
+                });
             });
         } catch (error) {
-            console.error("Lỗi khi lấy danh sách món ăn:", error)
+            console.error("Lỗi khi lấy danh sách món ăn:", error);
         }
-        showStoreMenu()
+        showStoreMenu();
     }
 
     // Cập nhật món ăn
@@ -584,14 +613,12 @@ function handleMenuManagement() {
                     console.log("Không tìm thấy món ăn với ID này.");
                     return showStoreMenu();
                 }
-                console.log(item);
-                
                 rl.question("Nhập tên mới (để trống nếu không thay đổi): ", (itemName) => {
-                    console.log("Chọn danh mục:");
+                    console.log("Chọn danh mục mới (để trống nếu không thay đổi):");
                     categories.forEach((category, index) => {
                         console.log(`${index + 1}. ${category}`);
                     });
-                    rl.question("Chọn danh mục mới (để trống nếu không thay đổi): ", (choice) => {
+                    rl.question("Chọn một danh mục: ", (choice) => {
                         const categoryIndex = parseInt(choice.trim(), 10) - 1;
                         const updatedData = {};
                         if (itemName.trim()) updatedData.itemName = capitalize(itemName.trim());
@@ -608,13 +635,36 @@ function handleMenuManagement() {
                                     updatedData.price = parsedPrice;
                                 }
     
-                                try {
-                                    await collection.updateOne({ _id: id.trim().toUpperCase() }, { $set: updatedData });
-                                    console.log("Cập nhật món ăn thành công.");
-                                } catch (error) {
-                                    console.error("Lỗi khi cập nhật món ăn:", error);
+                                // Validate ingredients
+                                function updateIngredients() {
+                                    const ingredients = [];
+                                    async function addIngredient() {
+                                        rl.question("Nhập ID nguyên liệu (để trống để kết thúc): ", async (ingredientId) => {
+                                            if (!ingredientId.trim()) {
+                                                if (ingredients.length > 0) {
+                                                    updatedData.ingredients = ingredients;
+                                                }
+                                                try {
+                                                    await collection.updateOne({ _id: id.trim().toUpperCase() }, { $set: updatedData });
+                                                    console.log("Cập nhật món ăn thành công.");
+                                                } catch (error) {
+                                                    console.error("Lỗi khi cập nhật món ăn:", error);
+                                                }
+                                                return showStoreMenu();
+                                            }
+                                            const ingredient = await storageCollection.findOne({ _id: ingredientId.trim().toUpperCase() });
+                                            if (!ingredient) {
+                                                console.log("Không tìm thấy nguyên liệu với ID này.");
+                                                return addIngredient();
+                                            }
+                                            ingredients.push(ingredientId.trim().toUpperCase());
+                                            addIngredient();
+                                        });
+                                    }
+                                    addIngredient();
                                 }
-                                showStoreMenu();
+    
+                                updateIngredients();
                             });
                         }
     
@@ -654,7 +704,8 @@ function handleMenuManagement() {
             2. Tìm kiếm theo tên món ăn
             3. Tìm kiếm theo danh mục
             4. Tìm kiếm theo khoảng giá
-            5. Quay lại
+            5. Tìm kiếm theo nguyên liệu
+            6. Quay lại
         `);
     
         rl.question("Chọn một chức năng: ", async (choice) => {
@@ -672,6 +723,9 @@ function handleMenuManagement() {
                     searchByPrice(collection);
                     break;
                 case "5":
+                    searchByIngredient(collection);
+                    break;
+                case "6":
                     showStoreMenu();
                     break;
                 default:
@@ -680,6 +734,7 @@ function handleMenuManagement() {
             }
         });
 
+        // Tìm món ăn bằng ID
         async function searchById(collection) {
             rl.question(`Nhập ID món ăn (MI0001 - MI${String(nextMenuId - 1).padStart(4, "0")}): `, async (id) => {
                 try {
@@ -696,6 +751,7 @@ function handleMenuManagement() {
             });
         }
 
+        // Tìm món ăn theo tên
         async function searchByName(collection) {
             rl.question("Nhập tên món ăn cần tìm: ", async (name) => {
                 try {
@@ -715,6 +771,7 @@ function handleMenuManagement() {
             });
         }
         
+        // Tìm món ăn theo danh mục
         async function searchByCategory(collection) {
             console.log(`
                 ================================
@@ -754,6 +811,7 @@ function handleMenuManagement() {
             });
         }
         
+        // Tìm món ăn theo khoảng giá
         async function searchByPrice(collection) {
             rl.question("Nhập giá thấp nhất (nghìn đồng): ", (minPrice) => {
                 const parsedMinPrice = validatePrice(minPrice, () => searchByPrice(collection));
@@ -781,6 +839,36 @@ function handleMenuManagement() {
                     searchMenu(collection);
                 });
             })
+        }
+
+        // Tìm món ăn theo nguyên liệu
+        async function searchByIngredient(collection) {
+            rl.question("Nhập tên nguyên liệu cần tìm: ", async (ingredientName) => {
+                try {
+                    const ingredients = await storageCollection.find({ ingredientName: { $regex: new RegExp(ingredientName, 'i') } }).toArray();
+                    if (ingredients.length === 0) {
+                        console.log("Không tìm thấy nguyên liệu với tên này.");
+                    } else {
+                        const ingredientIds = ingredients.map(ingredient => ingredient._id);
+                        const items = await collection.find({ ingredients: { $in: ingredientIds } }).toArray();
+                        if (items.length === 0) {
+                            console.log("Không tìm thấy món ăn sử dụng nguyên liệu này.");
+                        } else {
+                            console.log("Kết quả tìm kiếm:");
+                            items.forEach((item, index) => {
+                                console.log(`${index + 1}. ID: ${item._id}, ${item.itemName} - ${item.category} - ${item.price.toLocaleString()} VND`);
+                                console.log("   Nguyên liệu:");
+                                item.ingredients.forEach((ingredientId, idx) => {
+                                    console.log(`     ${idx + 1}. ID: ${ingredientId}`);
+                                });
+                            });
+                        }
+                    }
+                } catch (error) {
+                    console.error("Lỗi khi tìm kiếm món ăn:", error);
+                }
+                searchMenu(collection);
+            });
         }
     }
 
@@ -860,7 +948,7 @@ function handleStorageManagement() {
             const ingredients = await storageCollection.find().toArray();
             console.log("Danh sách nguyên liệu:");
             ingredients.forEach((ingredient, index) => {
-                console.log(`${index + 1}. ID: ${ingredient._id}, Tên: ${ingredient.name}, Số lượng tồn kho: ${ingredient.inStock}`);
+                console.log(`${index + 1}. ID: ${ingredient._id}, Tên: ${ingredient.ingredientName}, Số lượng tồn kho: ${ingredient.inStock}`);
             });
         } catch (error) {
             console.error("Lỗi khi lấy danh sách nguyên liệu:", error);
@@ -956,7 +1044,7 @@ function handleStorageManagement() {
                     } else {
                         console.log("Kết quả tìm kiếm:");
                         ingredients.forEach((ingredient, index) => {
-                            console.log(`${index + 1}. ID: ${ingredient._id}, Tên: ${ingredient.name}, Số lượng tồn kho: ${ingredient.inStock}`);
+                            console.log(`${index + 1}. ID: ${ingredient._id}, Tên: ${ingredient.ingredientName}, Số lượng tồn kho: ${ingredient.inStock}`);
                         });
                     }
                 } catch (error) {
@@ -1031,7 +1119,7 @@ function handleOrderManagement() {
                     }
                     const items = [];
                     async function addItem() {
-                        rl.question(`Nhập ID món ăn (MI0001 - MI0${String(nextIngredientId - 1).padStart(3, "0")}): `, async (itemId) => {
+                        rl.question(`Nhập ID món ăn (MI0001 - MI0${String(nextMenuId - 1).padStart(3, "0")}): `, async (itemId) => {
                             if (!itemId.trim()) {
                                 console.log("ID món ăn không được để trống.");
                                 return addItem();
@@ -1047,6 +1135,23 @@ function handleOrderManagement() {
                                     console.log("Số lượng không hợp lệ.");
                                     return addItem();
                                 }
+    
+                                // Kiểm tra số lượng nguyên liệu trong kho
+                                const insufficientIngredients = [];
+                                for (const ingredientId of menuItem.ingredients) {
+                                    const ingredient = await storageCollection.findOne({ _id: ingredientId });
+                                    if (!ingredient || ingredient.inStock < quantity) {
+                                        insufficientIngredients.push(ingredientId);
+                                        break;
+                                    }
+                                }
+    
+                                if (insufficientIngredients.length > 0) {
+                                    console.log("Không đủ nguyên liệu để làm món ăn này. Vui lòng thay đổi số lượng hoặc chọn món khác.");
+                                    console.log(`Nguyên liệu: ${ingredient}, Số lượng còn: ${ingredient.inStock}, Đơn hàng cần: ${quantity}`);
+                                    return addItem();
+                                }
+    
                                 items.push({
                                     itemId: itemId.trim(),
                                     quantity: quantity
@@ -1069,8 +1174,19 @@ function handleOrderManagement() {
                                             total: total,
                                             createdAt: new Date()
                                         };
+    
+                                        // Trừ số lượng nguyên liệu trong kho
+                                        for (const item of items) {
+                                            const menuItem = await menuCollection.findOne({ _id: item.itemId });
+                                            for (const ingredientId of menuItem.ingredients) {
+                                                await storageCollection.updateOne(
+                                                    { _id: ingredientId },
+                                                    { $inc: { inStock: -item.quantity } }
+                                                );
+                                            }
+                                        }
+    
                                         await ordersCollection.insertOne(newOrder);
-                                        newOrder.total = total.toLocaleString();
                                         console.log("Đơn đặt hàng đã được tạo thành công:", newOrder);
                                         showOrderMenu();
                                     }
@@ -1391,6 +1507,7 @@ function handlePromotionManagement() {
             showPromotionMenu();
         });
     }
+    showPromotionMenu()
 }
 
 // Quản lý dữ liệu thống kê
@@ -1451,6 +1568,7 @@ function handleStatistics() {
         });
     }
 
+    // Tổng doanh thu theo tháng
     async function showRevenueByMonth() {
         const results = await db.collection("RevenueByMonth").find().toArray();
         console.log("Tổng doanh thu (theo tháng):");
@@ -1460,12 +1578,14 @@ function handleStatistics() {
         showStatisticsMenu();
     }
 
+    // Tổng doanh thu toàn thời gian
     async function showTotalRevenue() {
         const result = await db.collection("TotalRevenue").findOne();
         console.log(`Tổng doanh thu: ${result.totalRevenue.toLocaleString()} VND`);
         showStatisticsMenu();
     }
 
+    // Top món ăn được đặt nhiều nhất theo tháng
     async function showTopItemsByMonth() {
         const results = await db.collection("TopItemsByMonth").find().toArray();
         console.log("Top món ăn được đặt nhiều nhất (theo tháng):");
@@ -1475,6 +1595,7 @@ function handleStatistics() {
         showStatisticsMenu();
     }
 
+    // Top 5 món ăn được đặt nhiều nhất toàn thời gian
     async function showTopItemsAllTime() {
         const results = await db.collection("TopItemsAllTime").find().toArray();
         console.log("Top 5 món ăn được đặt nhiều nhất (toàn thời gian):");
@@ -1484,6 +1605,7 @@ function handleStatistics() {
         showStatisticsMenu();
     }
 
+    // Top danh mục bán chạy nhất theo tháng
     async function showTopCategoriesByMonth() {
         const results = await db.collection("TopCategoriesByMonth").find().toArray();
         console.log("Phân tích danh mục bán chạy nhất (theo tháng):");
@@ -1493,6 +1615,7 @@ function handleStatistics() {
         showStatisticsMenu();
     }
 
+    // Top danh mục bán chạy nhất
     async function showTopCategoriesAllTime() {
         const results = await db.collection("TopCategoriesAllTime").find().toArray();
         console.log("Top 3 danh mục bán chạy nhất (toàn thời gian):");
@@ -1502,6 +1625,7 @@ function handleStatistics() {
         showStatisticsMenu();
     }
 
+    // Doanh thu theo danh mục
     async function showRevenueByCategory() {
         const results = await db.collection("RevenueByCategory").find().toArray();
         console.log("Doanh thu theo danh mục món ăn:");
@@ -1511,6 +1635,7 @@ function handleStatistics() {
         showStatisticsMenu();
     }
 
+    // Tần suất đặt hàng theo tháng
     async function showOrderFrequencyByMonth() {
         const results = await db.collection("OrderFrequencyByMonth").find().toArray();
         console.log("Tần suất đặt hàng theo từng tháng:");
@@ -1520,13 +1645,63 @@ function handleStatistics() {
         showStatisticsMenu();
     }
 
+    // Hiển thị doanh thu theo ngày trong một tháng cụ thể
     async function showRevenueByDayInASpecificMonth() {
-        const results = await db.collection("RevenueByDayInASpecificMonth").find().toArray();
-        console.log("Doanh thu theo ngày trong một tháng cụ thể:");
-        results.forEach(result => {
-            console.log(`Ngày: ${String(result._id).padStart(2, "0")}, Doanh thu: ${result.dailyRevenue.toLocaleString()} VND`);
+        rl.question("Nhập năm (YYYY): ", (year) => {
+            if (!/^\d{4}$/.test(year)) {
+                console.log("Năm không hợp lệ. Vui lòng nhập năm có 4 chữ số.");
+                return showRevenueByDayInASpecificMonth();
+            }
+    
+            rl.question("Nhập tháng (MM): ", async (month) => {
+                if (!/^(0[1-9]|1[0-2])$/.test(month)) {
+                    console.log("Tháng không hợp lệ. Vui lòng nhập tháng từ 01 đến 12.");
+                    return showRevenueByDayInASpecificMonth();
+                }
+    
+                const startDateStats = new Date(`${year}-${month}-01`);
+                const endDateStats = new Date(startDateStats);
+                endDateStats.setMonth(endDateStats.getMonth() + 1);
+                endDateStats.setDate(0); // Ngày cuối cùng của tháng trước đó
+
+                try {
+                    // Xóa view cũ nếu tồn tại
+                    await db.collection("RevenueByDayInASpecificMonth").drop().catch(() => {});
+    
+                    // Tạo view mới theo input người dùng
+                    await db.createCollection("RevenueByDayInASpecificMonth", {
+                        viewOn: ordersCollection.s.namespace.collection,
+                        pipeline: [
+                            {
+                                $match: {
+                                    createdAt: {
+                                        $gte: startDateStats,
+                                        $lte: endDateStats,
+                                    },
+                                },
+                            },
+                            {
+                                $group: {
+                                    _id: { $dayOfMonth: "$createdAt" },
+                                    dailyRevenue: { $sum: "$total" },
+                                },
+                            },
+                            { $sort: { _id: 1 } },
+                        ],
+                    });
+    
+                    // Hiển thị kết quả của view mới
+                    const results = await db.collection("RevenueByDayInASpecificMonth").find().toArray();
+                    console.log(`Doanh thu theo ngày trong tháng ${String(month).padStart(2, "0")}/${year}`);
+                    results.forEach(result => {
+                        console.log(`Ngày ${result._id}: ${result.dailyRevenue.toLocaleString()} VND`);
+                    });
+                } catch (error) {
+                    console.error("Lỗi khi tạo view:", error);
+                }
+                showStatisticsMenu();
+            });
         });
-        showStatisticsMenu();
     }
 
     showStatisticsMenu();
