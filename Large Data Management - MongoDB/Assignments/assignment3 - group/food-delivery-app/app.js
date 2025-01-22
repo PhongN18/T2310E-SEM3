@@ -17,6 +17,7 @@ let nextMenuId, nextIngredientId, nextOrderId
 let noOfMenuItems = 100
 let noOfIngredients = 100
 let noOfOrders = 10000
+let firstOrderDate, lastOrderDate, firstOrderFormattedDate, lastOrderFormattedDate
 
 const rl = readline.createInterface({
     input: process.stdin,
@@ -123,34 +124,43 @@ async function initializeData() {
             phone: `098${String(i).padStart(7, "0")}`,
             address: `Address_${i}`,
             createdAt: randomDate(startDate, endDate),
-            customerSatisfaction: (Math.random() * 4 + 1).toFixed(1)
+            customerSatisfaction: parseFloat((Math.random() * 4 + 1).toFixed(1))
         });
     }
     await ordersCollection.insertMany(ordersData);
     nextOrderId = noOfOrders + 1
     console.log("Orders data inserted.");
 
+    // Lấy đơn đầu tiên và cuối cùng theo thời gian để hiển thị toàn thời gian
+    firstOrderDate = await ordersCollection.find().sort({ createdAt: 1 }).limit(1).toArray()
+    lastOrderDate = await ordersCollection.find().sort({ createdAt: -1 }).limit(1).toArray()
+    if (firstOrderDate.length > 0 && lastOrderDate.length > 0) {
+        firstOrderFormattedDate = new Date(firstOrderDate[0].createdAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        lastOrderFormattedDate = new Date(lastOrderDate[0].createdAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    }
+
     // Khuyến mãi
     const promoData = []
     for (let i = 0; i < 100; i++) {
+        const discount = Math.floor(Math.random() * 6) * 10
+        if (discount === 0) continue;
         promoData.push({
             itemId: menuData[i]._id,
             itemName: menuData[i].itemName,
-            discount: Math.floor(Math.random() * 50) + 10
+            discount
         })
     }
     await promotionsCollection.insertMany(promoData)
     console.log("Promotions data inserted.");
 
-    // Indexes for orders collection
+    // Index cho collection orders
     await ordersCollection.createIndex({ createdAt: 1 });
     await ordersCollection.createIndex({ "items.itemId": 1 });
     await ordersCollection.createIndex({ createdAt: 1, "items.itemId": 1 });
 
-    // Indexes for menu collection
+    // Index cho collection menu
     await menuCollection.createIndex({ category: 1 });
     console.log("Indexes created");
-    
     
     //------------------------------------------------------------------------------------------------------------------------------------------------------------
     // Tạo các View sau khi dữ liệu mẫu đã được thêm vào
@@ -488,6 +498,47 @@ async function initializeData() {
         ]
     })
 
+    // 12. Trung bình đánh giá của khách hàng theo tháng
+    await db.createCollection("AvgCustomerSatisfactionRatingsByMonth", {
+        viewOn: ordersCollection.s.namespace.collection,
+        pipeline: [
+            {
+                $group: {
+                    _id: { year: { $year: "$createdAt" }, month: { $month: "$createdAt" } },
+                    avgRatings: { $avg: "$customerSatisfaction" }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    year: "$_id.year",
+                    month: "$_id.month",
+                    avgRatings: "$avgRatings"
+                }
+            },
+        { $sort: { year: 1, month: 1 } }
+        ]
+    })
+
+    // 13. Trung bình đánh giá của khách hàng toàn thời gian
+    await db.createCollection("AvgCustomerSatisfactionRatingsAllTime", {
+        viewOn: ordersCollection.s.namespace.collection,
+        pipeline: [
+            {
+                $group: {
+                    _id: null,
+                    avgRatings: { $avg: "$customerSatisfaction" }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    avgRatings: "$avgRatings"
+                }
+            }
+        ]
+    })
+
     console.log("All views created successfully!");
 }
 
@@ -576,6 +627,7 @@ function handleMenuManagement() {
         });
     }
 
+    // Validate giá tiền nhập vào
     function validatePrice(price, callback) {
         if (!/^[0-9]+$/.test(price)) {
             console.log("Giá món ăn phải là một số nguyên dương hợp lệ.");
@@ -628,7 +680,7 @@ function handleMenuManagement() {
     
                 try {
                     const newItem = {
-                        _id: `MI0${String(nextMenuId++).padStart(3, "0")}`,
+                        _id: `MI${String(nextMenuId++).padStart(4, "0")}`,
                         itemName,
                         category,
                         price: parsedPrice,
@@ -664,7 +716,7 @@ function handleMenuManagement() {
         function askIngredients(itemName) {
             const ingredients = [];
             async function addIngredient() {
-                rl.question("Nhập ID nguyên liệu (để trống để kết thúc): ", async (ingredientId) => {
+                rl.question(`Nhập ID nguyên liệu (I0001 - I${String(nextIngredientId - 1).padStart(4, "0")}) (để trống để kết thúc): `, async (ingredientId) => {
                     if (!ingredientId.trim()) {
                         if (ingredients.length === 0) {
                             console.log("Danh sách nguyên liệu không được để trống.");
@@ -705,7 +757,7 @@ function handleMenuManagement() {
 
     // Cập nhật món ăn
     async function updateMenuItem(collection) {
-        rl.question(`Nhập ID món ăn cần cập nhật (MI0001 - MI0${String(nextMenuId - 1).padStart(3, "0")}): `, async (id) => {
+        rl.question(`Nhập ID món ăn cần cập nhật (MI0001 - MI${String(nextMenuId - 1).padStart(4, "0")}): `, async (id) => {
             try {
                 const item = await collection.findOne({ _id: id.trim().toUpperCase() });
                 if (!item) {
@@ -738,7 +790,7 @@ function handleMenuManagement() {
                                 function updateIngredients() {
                                     const ingredients = [];
                                     async function addIngredient() {
-                                        rl.question("Nhập ID nguyên liệu (để trống để kết thúc): ", async (ingredientId) => {
+                                        rl.question(`Nhập ID nguyên liệu (I0001 - I${String(nextIngredientId - 1).padStart(4, "0")}) (để trống để kết thúc): `, async (ingredientId) => {
                                             if (!ingredientId.trim()) {
                                                 if (ingredients.length > 0) {
                                                     updatedData.ingredients = ingredients;
@@ -794,6 +846,7 @@ function handleMenuManagement() {
         });
     }
 
+    // Tìm kiếm trong menu
     async function searchMenu(collection) {
         console.log(`
             ================================
@@ -1016,8 +1069,8 @@ function handleStorageManagement() {
         });
     }
 
+    // Thêm nguyên liệu
     async function createIngredient() {
-        // Function to create a new ingredient
         rl.question("Nhập tên nguyên liệu: ", async (name) => {
             if (!name.trim()) {
                 console.log("Tên nguyên liệu không được để trống.");
@@ -1041,8 +1094,8 @@ function handleStorageManagement() {
         });
     }
 
+    // Xem danh sách nguyên liệu
     async function readIngredients() {
-        // Function to read all ingredients
         try {
             const ingredients = await storageCollection.find().toArray();
             console.log("Danh sách nguyên liệu:");
@@ -1055,8 +1108,8 @@ function handleStorageManagement() {
         showStorageMenu();
     }
 
+    // Cập nhật nguyên liệu (xuất/nhập hàng)
     async function updateIngredient() {
-        // Function to update an ingredient
         rl.question(`Nhập ID nguyên liệu cần cập nhật (I0001 - I${String(nextIngredientId - 1).padStart(4, "0")}): `, async (ingredientId) => {
             try {
                 const ingredient = await storageCollection.findOne({ _id: ingredientId.trim() });
@@ -1094,9 +1147,9 @@ function handleStorageManagement() {
         });
     }
 
+    // Xóa nguyên liệu
     async function deleteIngredient() {
-        // Function to delete an ingredient
-        rl.question("Nhập ID nguyên liệu cần xóa: ", async (ingredientId) => {
+        rl.question(`Nhập ID nguyên liệu cần xóa (I0001 - ${String(nextIngredientId - 1).padStart(4, "0")}): `, async (ingredientId) => {
             try {
                 const result = await storageCollection.deleteOne({ _id: ingredientId.trim() });
                 if (result.deletedCount > 0) {
@@ -1111,6 +1164,7 @@ function handleStorageManagement() {
         });
     }
 
+    // Tìm kiếm trong kho nguyên liệu
     async function searchIngredients() {
         console.log(`
             ================================
@@ -1134,6 +1188,7 @@ function handleStorageManagement() {
             }
         });
 
+        // Tìm theo tên
         async function searchByName() {
             rl.question("Nhập tên nguyên liệu: ", async (name) => {
                 try {
@@ -1199,8 +1254,8 @@ function handleOrderManagement() {
         });
     }
 
+    // Thêm đơn đặt hàng
     async function createOrder() {
-        // Function to create a new order
         rl.question("Nhập tên khách hàng: ", async (customer) => {
             if (!customer.trim()) {
                 console.log("Tên khách hàng không được để trống.");
@@ -1220,7 +1275,7 @@ function handleOrderManagement() {
                     const tempIngredientUsage = {}; // Temporary storage for ingredient usage
     
                     async function addItem() {
-                        rl.question(`Nhập ID món ăn (MI0001 - MI0${String(nextMenuId - 1).padStart(3, "0")}): `, async (itemId) => {
+                        rl.question(`Nhập ID món ăn (MI0001 - MI${String(nextMenuId - 1).padStart(4, "0")}): `, async (itemId) => {
                             if (!itemId.trim()) {
                                 console.log("ID món ăn không được để trống.");
                                 return addItem();
@@ -1291,7 +1346,7 @@ function handleOrderManagement() {
                                             items: items,
                                             total: total,
                                             createdAt: new Date(),
-                                            customerSatisfaction: (Math.random() * 4 + 1).toFixed(1)
+                                            customerSatisfaction: parseFloat((Math.random() * 4 + 1).toFixed(1))
                                         };
     
                                         // Trừ số lượng nguyên liệu trong kho
@@ -1319,8 +1374,8 @@ function handleOrderManagement() {
         });
     }
 
+    // Xem danh sách đơn đặt hàng (có phân trang)
     async function readOrders(page = 1, limit = 100) {
-        // Function to read all orders with pagination
         try {
             const skip = (page - 1) * limit;
             const orders = await ordersCollection.find().skip(skip).limit(limit).toArray();
@@ -1338,6 +1393,7 @@ function handleOrderManagement() {
 
             showPaginationMenu()
     
+            // Hiển thị menu phân trang
             function showPaginationMenu() {
                 console.log(`
                     Đơn hàng ${skip + 1} - ${Math.min(skip + limit, totalOrders)} trên ${totalOrders} đơn hàng
@@ -1391,9 +1447,9 @@ function handleOrderManagement() {
         }
     }
 
+    // Cập nhật đơn đặt hàng
     async function updateOrder() {
-        // Function to update an order
-        rl.question("Nhập ID đơn đặt hàng cần cập nhật (ORD + 9 chữ số): ", async (orderId) => {
+        rl.question(`Nhập ID đơn đặt hàng cần cập nhật (ORD000000001 - ${String(nextOrderId - 1).padStart(9, "0")}): `, async (orderId) => {
             try {
                 const order = await ordersCollection.findOne({ _id: orderId.trim().toUpperCase() });
                 if (!order) {
@@ -1466,9 +1522,9 @@ function handleOrderManagement() {
         });
     }
 
+    // Xóa đơn đặt hàng
     async function deleteOrder() {
-        // Function to delete an order
-        rl.question("Nhập ID đơn đặt hàng cần xóa (ORD + 9 chữ số): ", async (orderId) => {
+        rl.question(`Nhập ID đơn đặt hàng cần xóa (ORD000000001 - ${String(nextOrderId - 1).padStart(9, "0")}): `, async (orderId) => {
             try {
                 const result = await ordersCollection.deleteOne({ _id: orderId.trim() });
                 if (result.deletedCount > 0) {
@@ -1483,6 +1539,7 @@ function handleOrderManagement() {
         });
     }
 
+    // Tìm kiếm đơn đặt hàng
     async function searchOrders() {
         console.log(`
             ================================
@@ -1514,8 +1571,9 @@ function handleOrderManagement() {
             }
         });
 
+        // Tìm bằng ID
         async function searchById() {
-            rl.question("Nhập ID đơn đặt hàng (ORD + 9 chữ số): ", async (id) => {
+            rl.question(`Nhập ID đơn đặt hàng (ORD000000001 - ORD${String(nextOrderId - 1).padStart(9, "0")}): `, async (id) => {
                 try {
                     const order = await ordersCollection.findOne({ _id: id.trim().toUpperCase() });
                     if (!order) {
@@ -1533,6 +1591,7 @@ function handleOrderManagement() {
             });
         }
 
+        // Tìm bằng tên khách hàng
         async function searchByCustomer() {
             rl.question("Nhập tên khách hàng: ", async (customer) => {
                 try {
@@ -1555,6 +1614,7 @@ function handleOrderManagement() {
             });
         }
 
+        // Tìm bằng điện thoại đặt hàng
         async function searchByPhone() {
             rl.question("Nhập số điện thoại: ", async (phone) => {
                 try {
@@ -1577,6 +1637,7 @@ function handleOrderManagement() {
             });
         }
     }
+
     showOrderMenu();
 }
 
@@ -1620,7 +1681,7 @@ function handlePromotionManagement() {
     
     // Thêm khuyến mãi
     async function addPromotion() {
-        rl.question("Nhập ID món ăn cần áp dụng khuyến mãi: ", async (id) => {
+        rl.question(`Nhập ID món ăn cần áp dụng khuyến mãi (MI0001 - MI${String(nextMenuId - 1).padStart(4, "0")}): `, async (id) => {
             const menuItem = await menuCollection.findOne({ _id: id });
             if (!menuItem) {
                 console.log("Không tìm thấy món ăn với ID này.");
@@ -1675,7 +1736,7 @@ function handlePromotionManagement() {
     
     // Gỡ khuyến mãi
     async function removePromotion() {
-        rl.question("Nhập ID món ăn cần gỡ khuyến mãi: ", async (id) => {
+        rl.question(`Nhập ID món ăn cần gỡ khuyến mãi (MI0001 - MI${String(nextMenuId - 1).padStart(4, "0")}): `, async (id) => {
             try {
                 const result = await promotionsCollection.deleteOne({ itemId: id });
                 if (result.deletedCount > 0) {
@@ -1692,7 +1753,7 @@ function handlePromotionManagement() {
 
     // Cập nhật khuyến mãi
     async function updatePromotion() {
-        rl.question("Nhập ID món ăn cần cập nhật khuyến mãi: ", async (id) => {
+        rl.question(`Nhập ID món ăn cần cập nhật khuyến mãi (MI0001 - MI${String(nextMenuId - 1).padStart(4, "0")}): `, async (id) => {
             const menuItem = await menuCollection.findOne({ _id: id });
             if (!menuItem) {
                 console.log("Không tìm thấy món ăn với ID này.");
@@ -1747,6 +1808,8 @@ function handleStatistics() {
             9. Doanh thu theo ngày trong một tháng cụ thể
             10. Top nguyên liệu được dùng nhiều nhất (theo tháng)
             11. Top nguyên liệu được dùng nhiều nhất (toàn thời gian)
+            12. Trung bình đánh giá khách hàng (theo tháng)
+            13. Trung bình đánh giá khách hàng (toàn thời gian)
         `);
 
         rl.question("Chọn một chức năng: ", async (choice) => {
@@ -1784,6 +1847,12 @@ function handleStatistics() {
                 case "11":
                     await showTopIngredientsAllTime();
                     break;
+                case "12":
+                    await showAverageCustomerSatisfactionByMonth();
+                    break;
+                case "13":
+                    await showAverageCustomerSatisfactionAllTime();
+                    break;
                 case "0":
                     showMenuDialog();
                     break;
@@ -1807,6 +1876,7 @@ function handleStatistics() {
     // Tổng doanh thu toàn thời gian
     async function showTotalRevenue() {
         const result = await db.collection("TotalRevenue").findOne();
+        console.log(`Từ ${firstOrderFormattedDate} đến ${lastOrderFormattedDate}`);
         console.log(`Tổng doanh thu: ${result.totalRevenue.toLocaleString()} VND`);
         showStatisticsMenu();
     }
@@ -1824,6 +1894,7 @@ function handleStatistics() {
     // Top 5 món ăn được đặt nhiều nhất toàn thời gian
     async function showTopItemsAllTime() {
         const results = await db.collection("TopItemsAllTime").find().toArray();
+        console.log(`Từ ${firstOrderFormattedDate} đến ${lastOrderFormattedDate}`);
         console.log("Top 5 món ăn được đặt nhiều nhất (toàn thời gian):");
         results.forEach(result => {
             console.log(`Món ăn: ${result.itemName}, Số lượng: ${result.totalQuantity.toLocaleString()}`);
@@ -1844,6 +1915,7 @@ function handleStatistics() {
     // Top danh mục bán chạy nhất
     async function showTopCategoriesAllTime() {
         const results = await db.collection("TopCategoriesAllTime").find().toArray();
+        console.log(`Từ ${firstOrderFormattedDate} đến ${lastOrderFormattedDate}`);
         console.log("Top 3 danh mục bán chạy nhất (toàn thời gian):");
         results.forEach(result => {
             console.log(`Danh mục: ${result._id}, Số lượng: ${result.totalQuantity.toLocaleString()}`);
@@ -1854,6 +1926,7 @@ function handleStatistics() {
     // Doanh thu theo danh mục
     async function showRevenueByCategory() {
         const results = await db.collection("RevenueByCategory").find().toArray();
+        console.log(`Từ ${firstOrderFormattedDate} đến ${lastOrderFormattedDate}`);
         console.log("Doanh thu theo danh mục món ăn:");
         results.forEach(result => {
             console.log(`Danh mục: ${result._id}, Doanh thu: ${result.totalRevenue.toLocaleString()} VND`);
@@ -1944,6 +2017,7 @@ function handleStatistics() {
     // Top nguyên liệu được dùng nhiều nhất toàn thời gian
     async function showTopIngredientsAllTime() {
         const results = await db.collection("TopIngredientsAllTime").find().toArray();
+        console.log(`Từ ${firstOrderFormattedDate} đến ${lastOrderFormattedDate}`);
         console.log("Top nguyên liệu được dùng nhiều nhất (toàn thời gian):");
         results.forEach(result => {
             console.log(`ID: ${result.ingredientId}, Nguyên liệu: ${result.ingredientName}, Đã sử dụng: ${result.ingredientUsed.toLocaleString()}, Tồn kho: ${result.inStock}`);
@@ -1952,7 +2026,26 @@ function handleStatistics() {
         showStatisticsMenu();
     }
 
-    showStatisticsMenu();
+    // Trung bình đánh giá khách hàng theo tháng
+    async function showAverageCustomerSatisfactionByMonth() {
+        const results = await db.collection("AvgCustomerSatisfactionRatingsByMonth").find().toArray();
+        console.log("Trung bình đánh giá khách hàng (theo tháng):");
+        results.forEach(result => {
+            console.log(`Tháng: ${String(result.month).padStart(2, "0")}/${result.year}, Đánh giá: ${result.avgRatings.toFixed(1)}`);
+        });
+        showStatisticsMenu();
+    }
+
+    // Trung bình đánh giá khách hàng toàn thời gian
+    async function showAverageCustomerSatisfactionAllTime() {
+        const result = await db.collection("AvgCustomerSatisfactionRatingsAllTime").findOne();
+        console.log(`Từ ${firstOrderFormattedDate} đến ${lastOrderFormattedDate}`);
+        console.log(`Trung bình đánh giá khách hàng (toàn thời gian): ${result.avgRatings.toFixed(1)}`);
+
+        showStatisticsMenu();
+    }
+
+    showStatisticsMenu()
 }
 
 // Function chạy chương trình
