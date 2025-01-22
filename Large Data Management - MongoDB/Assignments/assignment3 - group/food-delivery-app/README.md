@@ -22,21 +22,22 @@ npm install mongodb readline
 
 ```
 food-delivery-app/
-|-- node_modules/    (Folder chứa dependencies)
-|-- .gitignore       (File cấu hình Git)
-|-- app.js           (File chính của ứng dụng)
+|-- node_modules/     (Folder chứa dependencies)
+|-- .gitignore        (File cấu hình Git)
+|-- app.js            (File chính của ứng dụng)
 |-- package-lock.json (File lock cho dependencies)
 |-- package.json      (File quản lý project và dependencies)
-|-- README.md        (File tài liệu README cho project)
+|-- README.md         (File tài liệu README cho project)
 ```
 
-## Tạo database và collection trong MongoDBCompass
+## Tạo database trong MongoDBCompass
+
+### Kết nối tới localhost:27017
+
+### Mở MongoDB shell và nhập
 
 ```
 use food_delivery
-db.createCollection('menu')
-db.createCollection('storage')
-db.createCollection('orders')
 ```
 
 ## Chạy chương trình

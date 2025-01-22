@@ -123,6 +123,7 @@ async function initializeData() {
             phone: `098${String(i).padStart(7, "0")}`,
             address: `Address_${i}`,
             createdAt: randomDate(startDate, endDate),
+            customerSatisfaction: (Math.random() * 4 + 1).toFixed(1)
         });
     }
     await ordersCollection.insertMany(ordersData);
@@ -1289,7 +1290,8 @@ function handleOrderManagement() {
                                             address: capitalize(address.trim()),
                                             items: items,
                                             total: total,
-                                            createdAt: new Date()
+                                            createdAt: new Date(),
+                                            customerSatisfaction: (Math.random() * 4 + 1).toFixed(1)
                                         };
     
                                         // Trừ số lượng nguyên liệu trong kho
@@ -1328,7 +1330,7 @@ function handleOrderManagement() {
             console.log(`Danh sách đơn đặt hàng - Trang ${page}:`);
             orders.forEach((order, index) => {
                 const formattedDate = new Date(order.createdAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
-                console.log(`ID: ${order._id}, Khách hàng: ${order.customer}, Số điện thoại: ${order.phone}, Địa chỉ: ${order.address}, Tổng: ${order.total.toLocaleString()} VND, Ngày tạo: ${formattedDate}`);
+                console.log(`ID: ${order._id}, Khách hàng: ${order.customer}, Số điện thoại: ${order.phone}, Địa chỉ: ${order.address}, Tổng: ${order.total.toLocaleString()} VND, Ngày tạo: ${formattedDate}, Đánh giá: ${order.customerSatisfaction}`);
                 order.items.forEach((item, idx) => {
                     console.log(`   ${idx + 1}. Món ăn ID: ${item.itemId}, Số lượng: ${item.quantity}`);
                 });
@@ -1588,7 +1590,8 @@ function handlePromotionManagement() {
             1. Thêm khuyến mãi
             2. Xem danh sách khuyến mãi
             3. Gỡ khuyến mãi
-            4. Quay lại menu chính
+            4. Cập nhật khuyến mãi
+            5. Quay lại menu chính
         `);
     
         rl.question("Chọn một chức năng: ", async (choice) => {
@@ -1603,6 +1606,9 @@ function handlePromotionManagement() {
                     await removePromotion();
                     break;
                 case "4":
+                    await updatePromotion();
+                    break;
+                case "5":
                     showMenuDialog();
                     return;
                 default:
@@ -1618,6 +1624,12 @@ function handlePromotionManagement() {
             const menuItem = await menuCollection.findOne({ _id: id });
             if (!menuItem) {
                 console.log("Không tìm thấy món ăn với ID này.");
+                return showPromotionMenu();
+            }
+
+            const existingPromotion = await promotionsCollection.findOne({ itemId: id });
+            if (existingPromotion) {
+                console.log("Món ăn này đã có khuyến mãi.");
                 return showPromotionMenu();
             }
     
@@ -1648,17 +1660,15 @@ function handlePromotionManagement() {
         try {
             const promotions = await promotionsCollection.find().toArray();
             if (promotions.length === 0) {
-                console.log("Hiện không có khuyến mãi nào.");
+                console.log("Không có khuyến mãi nào.");
             } else {
                 console.log("Danh sách khuyến mãi:");
-                promotions.forEach((promo, index) => {
-                    console.log(
-                        `${index + 1}. ID món: ${promo.itemId}, Tên món: ${promo.itemName}, Giảm giá: ${promo.discount}%`
-                    );
+                promotions.forEach((promotion, index) => {
+                    console.log(`${index + 1}. Món ăn: ${promotion.itemName}, Giảm giá: ${promotion.discount}%`);
                 });
             }
         } catch (error) {
-            console.error("Lỗi khi hiển thị khuyến mãi:", error);
+            console.error("Lỗi khi lấy danh sách khuyến mãi:", error);
         }
         showPromotionMenu();
     }
@@ -1671,7 +1681,7 @@ function handlePromotionManagement() {
                 if (result.deletedCount > 0) {
                     console.log("Khuyến mãi đã được gỡ thành công.");
                 } else {
-                    console.log("Không tìm thấy khuyến mãi cho món ăn với ID này.");
+                    console.log("Không tìm thấy khuyến mãi với ID món ăn này.");
                 }
             } catch (error) {
                 console.error("Lỗi khi gỡ khuyến mãi:", error);
@@ -1679,7 +1689,43 @@ function handlePromotionManagement() {
             showPromotionMenu();
         });
     }
-    showPromotionMenu()
+
+    // Cập nhật khuyến mãi
+    async function updatePromotion() {
+        rl.question("Nhập ID món ăn cần cập nhật khuyến mãi: ", async (id) => {
+            const menuItem = await menuCollection.findOne({ _id: id });
+            if (!menuItem) {
+                console.log("Không tìm thấy món ăn với ID này.");
+                return showPromotionMenu();
+            }
+
+            const existingPromotion = await promotionsCollection.findOne({ itemId: id });
+            if (!existingPromotion) {
+                console.log("Không tìm thấy khuyến mãi cho món ăn này.");
+                return showPromotionMenu();
+            }
+
+            rl.question("Nhập phần trăm giảm giá mới (0-100): ", async (discount) => {
+                if (!/^\d+$/.test(discount) || parseInt(discount) <= 0 || parseInt(discount) > 100) {
+                    console.log("Phần trăm giảm giá không hợp lệ.");
+                    return showPromotionMenu();
+                }
+
+                try {
+                    await promotionsCollection.updateOne(
+                        { itemId: id },
+                        { $set: { discount: parseInt(discount) } }
+                    );
+                    console.log("Khuyến mãi đã được cập nhật.");
+                } catch (error) {
+                    console.error("Lỗi khi cập nhật khuyến mãi:", error);
+                }
+                showPromotionMenu();
+            });
+        });
+    }
+
+    showPromotionMenu();
 }
 
 // Quản lý dữ liệu thống kê
