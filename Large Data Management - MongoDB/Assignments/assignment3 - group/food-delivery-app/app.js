@@ -1322,12 +1322,12 @@ function handleOrderManagement() {
                                 const hasPromotion = await promotionsCollection.findOne({ itemId: `MI${itemId}` });
                                 if (hasPromotion) console.log(`Món ăn được khuyến mãi ${hasPromotion.discount}%`);
     
-                                const existingItem = items.find(item => item.itemId === itemId.trim());
+                                const existingItem = items.find(item => item.itemId === `MI${itemId.trim()}`);
                                 if (existingItem) {
                                     existingItem.quantity += quantity;
                                 } else {
                                     items.push({
-                                        itemId: itemId.trim(),
+                                        itemId: `MI${itemId.trim()}`,
                                         quantity: quantity
                                     });
                                 }
