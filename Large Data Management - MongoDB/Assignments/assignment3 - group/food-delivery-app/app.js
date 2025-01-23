@@ -1,4 +1,3 @@
-const { time } = require("console");
 const { MongoClient } = require("mongodb");
 const readline = require("readline");
 
@@ -32,12 +31,16 @@ function randomDate(start, end) {
     return new Date(randomTimestamp)
 }
 
-const startDate = new Date(2024, 7, 1) // 1/8/2024
-const endDate = new Date(2025, 0, 21) // 21/1/2025
+const startDate = new Date(Date.UTC(2024, 7, 1)) // 1/8/2024
+const endDate = new Date(Date.UTC(2025, 0, 21)) // 21/1/2025
 
 // Viết hoa chữ cái đầu của string
 function capitalize(text) {
-    return text.trim().replace(/\b\w/g, (char) => char.toUpperCase());
+    return text
+        .trim()
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
 }
 
 // Sinh dữ liệu mẫu
@@ -91,7 +94,7 @@ async function initializeData() {
             _id: `MI0${String(i).padStart(3, "0")}`,
             itemName: `Menu_item_${i}`,
             category: categories[Math.floor(Math.random() * categories.length)],
-            price: (Math.floor(Math.random() * 200) + 50) * 1000,
+            price: (Math.floor(Math.random() * 500) + 50) * 1000,
             ingredients: ingredients,
         });
     }
@@ -124,7 +127,7 @@ async function initializeData() {
             phone: `098${String(i).padStart(7, "0")}`,
             address: `Address_${i}`,
             createdAt: randomDate(startDate, endDate),
-            customerSatisfaction: parseFloat((Math.random() * 4 + 1).toFixed(1))
+            customerSatisfaction: parseFloat((Math.random() * 2.5 + 2.5).toFixed(1))
         });
     }
     await ordersCollection.insertMany(ordersData);
@@ -141,7 +144,7 @@ async function initializeData() {
 
     // Khuyến mãi
     const promoData = []
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < noOfMenuItems; i++) {
         const discount = Math.floor(Math.random() * 6) * 10
         if (discount === 0) continue;
         promoData.push({
@@ -654,6 +657,46 @@ function handleMenuManagement() {
                 return false;
             }
         }
+
+        // Validate tên món ăn
+        rl.question("Nhập tên món ăn: ", async (itemName) => {
+            if (!itemName.trim()) {
+                console.log("Tên món ăn không được để trống. Quay lại menu.")
+                return showStoreMenu()
+            }
+    
+            itemName = capitalize(itemName)
+            const exists = await checkItemExists(itemName);
+            if (exists) {
+                console.log("Món ăn đã tồn tại trong cơ sở dữ liệu.")
+                return showStoreMenu()
+            }
+            askIngredients(itemName);
+        })
+
+        // Validate danh sách nguyên liệu
+        function askIngredients(itemName) {
+            const ingredients = [];
+            async function addIngredient() {
+                rl.question(`Nhập ID nguyên liệu (để trống để kết thúc): I`, async (ingredientId) => {
+                    if (!ingredientId.trim()) {
+                        if (ingredients.length === 0) {
+                            console.log("Danh sách nguyên liệu không được để trống.");
+                            return addIngredient();
+                        }
+                        return askCategory(itemName, ingredients);
+                    }
+                    const ingredient = await storageCollection.findOne({ _id: `I${ingredientId.trim()}` });
+                    if (!ingredient) {
+                        console.log("Không tìm thấy nguyên liệu với ID này.");
+                        return addIngredient();
+                    }
+                    ingredients.push(`I${ingredientId.trim()}`);
+                    addIngredient();
+                });
+            }
+            addIngredient();
+        }
     
         // Validate danh mục món ăn
         function askCategory(itemName, ingredients) {
@@ -695,46 +738,6 @@ function handleMenuManagement() {
                 showStoreMenu();
             });
         }
-    
-        // Validate tên món ăn
-        rl.question("Nhập tên món ăn: ", async (itemName) => {
-            if (!itemName.trim()) {
-                console.log("Tên món ăn không được để trống. Quay lại menu.")
-                return showStoreMenu()
-            }
-    
-            itemName = capitalize(itemName)
-            const exists = await checkItemExists(itemName);
-            if (exists) {
-                console.log("Món ăn đã tồn tại trong cơ sở dữ liệu.")
-                return showStoreMenu()
-            }
-            askIngredients(itemName);
-        })
-    
-        // Validate danh sách nguyên liệu
-        function askIngredients(itemName) {
-            const ingredients = [];
-            async function addIngredient() {
-                rl.question(`Nhập ID nguyên liệu (I0001 - I${String(nextIngredientId - 1).padStart(4, "0")}) (để trống để kết thúc): `, async (ingredientId) => {
-                    if (!ingredientId.trim()) {
-                        if (ingredients.length === 0) {
-                            console.log("Danh sách nguyên liệu không được để trống.");
-                            return addIngredient();
-                        }
-                        return askCategory(itemName, ingredients);
-                    }
-                    const ingredient = await storageCollection.findOne({ _id: ingredientId.trim().toUpperCase() });
-                    if (!ingredient) {
-                        console.log("Không tìm thấy nguyên liệu với ID này.");
-                        return addIngredient();
-                    }
-                    ingredients.push(ingredientId.trim().toUpperCase());
-                    addIngredient();
-                });
-            }
-            addIngredient();
-        }
     }
 
     // Xem danh sách món ăn
@@ -757,9 +760,9 @@ function handleMenuManagement() {
 
     // Cập nhật món ăn
     async function updateMenuItem(collection) {
-        rl.question(`Nhập ID món ăn cần cập nhật (MI0001 - MI${String(nextMenuId - 1).padStart(4, "0")}): `, async (id) => {
+        rl.question(`Nhập ID món ăn cần cập nhật: MI`, async (id) => {
             try {
-                const item = await collection.findOne({ _id: id.trim().toUpperCase() });
+                const item = await collection.findOne({ _id: `MI${id.trim()}` });
                 if (!item) {
                     console.log("Không tìm thấy món ăn với ID này.");
                     return showStoreMenu();
@@ -790,25 +793,25 @@ function handleMenuManagement() {
                                 function updateIngredients() {
                                     const ingredients = [];
                                     async function addIngredient() {
-                                        rl.question(`Nhập ID nguyên liệu (I0001 - I${String(nextIngredientId - 1).padStart(4, "0")}) (để trống để kết thúc): `, async (ingredientId) => {
+                                        rl.question(`Nhập ID nguyên liệu (để trống để kết thúc): I`, async (ingredientId) => {
                                             if (!ingredientId.trim()) {
                                                 if (ingredients.length > 0) {
                                                     updatedData.ingredients = ingredients;
                                                 }
                                                 try {
-                                                    await collection.updateOne({ _id: id.trim().toUpperCase() }, { $set: updatedData });
+                                                    await collection.updateOne({ _id: `MI${id.trim()}` }, { $set: updatedData });
                                                     console.log("Cập nhật món ăn thành công.");
                                                 } catch (error) {
                                                     console.error("Lỗi khi cập nhật món ăn:", error);
                                                 }
                                                 return showStoreMenu();
                                             }
-                                            const ingredient = await storageCollection.findOne({ _id: ingredientId.trim().toUpperCase() });
+                                            const ingredient = await storageCollection.findOne({ _id: `I${ingredientId.trim()}` });
                                             if (!ingredient) {
                                                 console.log("Không tìm thấy nguyên liệu với ID này.");
                                                 return addIngredient();
                                             }
-                                            ingredients.push(ingredientId.trim().toUpperCase());
+                                            ingredients.push(`I${ingredientId.trim()}`);
                                             addIngredient();
                                         });
                                     }
@@ -831,9 +834,9 @@ function handleMenuManagement() {
 
     // Xóa món ăn
     async function deleteMenuItem(collection) {
-        rl.question("Nhập ID món ăn cần xóa (integer): ", async (id) => {
+        rl.question(`Nhập ID món ăn cần xóa: MI`, async (id) => {
             try {
-                const result = await collection.deleteOne({ _id: parseInt(id) });
+                const result = await collection.deleteOne({ _id: `MI${id.trim()}` });
                 if (result.deletedCount > 0) {
                     console.log("Xóa món ăn thành công.");
                 } else {
@@ -888,9 +891,9 @@ function handleMenuManagement() {
 
         // Tìm món ăn bằng ID
         async function searchById(collection) {
-            rl.question(`Nhập ID món ăn (MI0001 - MI${String(nextMenuId - 1).padStart(4, "0")}): `, async (id) => {
+            rl.question(`Nhập ID món ăn: MI`, async (id) => {
                 try {
-                    const item = await collection.findOne({ _id: id.trim().toUpperCase() });
+                    const item = await collection.findOne({ _id: `MI${id.trim()}` });
                     if (!item) {
                         console.log("Không tìm thấy món ăn với ID này.");
                     } else {
@@ -1083,7 +1086,7 @@ function handleStorageManagement() {
                     return createIngredient();
                 }
                 const newIngredient = {
-                    _id: `I0${String(nextIngredientId++).padStart(3, "0")}`,
+                    _id: `I${String(nextIngredientId++).padStart(4, "0")}`,
                     ingredientName: capitalize(name.trim()),
                     inStock: inStock
                 };
@@ -1110,9 +1113,9 @@ function handleStorageManagement() {
 
     // Cập nhật nguyên liệu (xuất/nhập hàng)
     async function updateIngredient() {
-        rl.question(`Nhập ID nguyên liệu cần cập nhật (I0001 - I${String(nextIngredientId - 1).padStart(4, "0")}): `, async (ingredientId) => {
+        rl.question(`Nhập ID nguyên liệu cần cập nhật: I`, async (ingredientId) => {
             try {
-                const ingredient = await storageCollection.findOne({ _id: ingredientId.trim() });
+                const ingredient = await storageCollection.findOne({ _id: `I${ingredientId.trim()}` });
                 if (!ingredient) {
                     console.log("Không tìm thấy nguyên liệu với ID này.");
                     return showStorageMenu();
@@ -1122,7 +1125,7 @@ function handleStorageManagement() {
                 rl.question("Nhập tên nguyên liệu mới (để trống nếu không thay đổi): ", (name) => {
                     rl.question("Nhập số lượng tăng/giảm (có thể là số âm hoặc dương): ", async (quantityChange) => {
                         const updatedData = {};
-                        if (name.trim()) updatedData.name = capitalize(name.trim());
+                        if (name.trim()) updatedData.ingredientName = capitalize(name.trim());
                         if (quantityChange.trim()) {
                             quantityChange = parseInt(quantityChange.trim(), 10);
                             if (isNaN(quantityChange)) {
@@ -1135,7 +1138,7 @@ function handleStorageManagement() {
                                 return showStorageMenu();
                             }
                         }
-                        await storageCollection.updateOne({ _id: ingredientId.trim() }, { $set: updatedData });
+                        await storageCollection.updateOne({ _id: `I${ingredientId.trim()}` }, { $set: updatedData });
                         console.log("Nguyên liệu đã được cập nhật thành công.");
                         showStorageMenu();
                     });
@@ -1149,9 +1152,9 @@ function handleStorageManagement() {
 
     // Xóa nguyên liệu
     async function deleteIngredient() {
-        rl.question(`Nhập ID nguyên liệu cần xóa (I0001 - ${String(nextIngredientId - 1).padStart(4, "0")}): `, async (ingredientId) => {
+        rl.question(`Nhập ID nguyên liệu cần xóa: I`, async (ingredientId) => {
             try {
-                const result = await storageCollection.deleteOne({ _id: ingredientId.trim() });
+                const result = await storageCollection.deleteOne({ _id: `I${ingredientId.trim()}` });
                 if (result.deletedCount > 0) {
                     console.log("Nguyên liệu đã được xóa thành công.");
                 } else {
@@ -1275,12 +1278,12 @@ function handleOrderManagement() {
                     const tempIngredientUsage = {}; // Temporary storage for ingredient usage
     
                     async function addItem() {
-                        rl.question(`Nhập ID món ăn (MI0001 - MI${String(nextMenuId - 1).padStart(4, "0")}): `, async (itemId) => {
+                        rl.question(`Nhập ID món ăn: MI`, async (itemId) => {
                             if (!itemId.trim()) {
                                 console.log("ID món ăn không được để trống.");
                                 return addItem();
                             }
-                            const menuItem = await menuCollection.findOne({ _id: itemId.trim().toUpperCase() });
+                            const menuItem = await menuCollection.findOne({ _id: `MI${itemId.trim()}` });
                             if (!menuItem) {
                                 console.log("Không tìm thấy món ăn với ID này.");
                                 return addItem();
@@ -1316,7 +1319,7 @@ function handleOrderManagement() {
                                     tempIngredientUsage[ingredientId] = (tempIngredientUsage[ingredientId] || 0) + quantity;
                                 }
     
-                                const hasPromotion = await promotionsCollection.findOne({ itemId: itemId });
+                                const hasPromotion = await promotionsCollection.findOne({ itemId: `MI${itemId}` });
                                 if (hasPromotion) console.log(`Món ăn được khuyến mãi ${hasPromotion.discount}%`);
     
                                 const existingItem = items.find(item => item.itemId === itemId.trim());
@@ -1334,8 +1337,8 @@ function handleOrderManagement() {
                                     } else {
                                         const total = await items.reduce(async (sumPromise, item) => {
                                             const sum = await sumPromise;
-                                            const menuItem = await menuCollection.findOne({ _id: item.itemId });
-                                            const promotion = await promotionsCollection.findOne({ itemId: item.itemId });
+                                            const menuItem = await menuCollection.findOne({ _id: `MI${item.itemId}` });
+                                            const promotion = await promotionsCollection.findOne({ itemId: `MI${item.itemId}` });
                                             return sum + (menuItem.price * item.quantity * (promotion ? (100 - promotion.discount) / 100 : 1));
                                         }, Promise.resolve(0));
                                         const newOrder = {
@@ -1351,7 +1354,7 @@ function handleOrderManagement() {
     
                                         // Trừ số lượng nguyên liệu trong kho
                                         for (const item of items) {
-                                            const menuItem = await menuCollection.findOne({ _id: item.itemId });
+                                            const menuItem = await menuCollection.findOne({ _id: `MI${item.itemId}` });
                                             for (const ingredientId of menuItem.ingredients) {
                                                 await storageCollection.updateOne(
                                                     { _id: ingredientId },
@@ -1449,9 +1452,9 @@ function handleOrderManagement() {
 
     // Cập nhật đơn đặt hàng
     async function updateOrder() {
-        rl.question(`Nhập ID đơn đặt hàng cần cập nhật (ORD000000001 - ${String(nextOrderId - 1).padStart(9, "0")}): `, async (orderId) => {
+        rl.question(`Nhập ID đơn đặt hàng cần cập nhật: ORD`, async (orderId) => {
             try {
-                const order = await ordersCollection.findOne({ _id: orderId.trim().toUpperCase() });
+                const order = await ordersCollection.findOne({ _id: `ORD${orderId.trim()}`});
                 if (!order) {
                     console.log("Không tìm thấy đơn đặt hàng với ID này.");
                     return showOrderMenu();
@@ -1460,19 +1463,19 @@ function handleOrderManagement() {
                     rl.question("Nhập số điện thoại mới (để trống nếu không thay đổi): ", (phone) => {
                         rl.question("Nhập địa chỉ mới (để trống nếu không thay đổi): ", (address) => {
                             const updatedData = {};
-                            if (customer.trim()) updatedData.customer = customer.trim().capitalize;
+                            if (customer.trim()) updatedData.customer = capitalize(customer.trim());
                             if (phone.trim() && /^\d+$/.test(phone)) updatedData.phone = phone.trim();
-                            if (address.trim()) updatedData.address = address.trim().capitalize;
+                            if (address.trim()) updatedData.address = capitalize(address.trim());
                             rl.question("Cập nhật món ăn? (y/n): ", async (answer) => {
                                 if (answer.trim().toLowerCase() === 'y') {
                                     const items = [];
                                     async function addItem() {
-                                        rl.question("Nhập ID món ăn: ", async (itemId) => {
+                                        rl.question("Nhập ID món ăn: MI", async (itemId) => {
                                             if (!itemId.trim()) {
                                                 console.log("ID món ăn không được để trống.");
                                                 return addItem();
                                             }
-                                            const menuItem = await menuCollection.findOne({ _id: itemId.trim() });
+                                            const menuItem = await menuCollection.findOne({ _id: `MI${itemId.trim()}` });
                                             if (!menuItem) {
                                                 console.log("Không tìm thấy món ăn với ID này.");
                                                 return addItem();
@@ -1494,10 +1497,10 @@ function handleOrderManagement() {
                                                         updatedData.items = items;
                                                         updatedData.total = await items.reduce(async (sumPromise, item) => {
                                                             const sum = await sumPromise;
-                                                            const menuItem = await menuCollection.findOne({ _id: item.itemId });
+                                                            const menuItem = await menuCollection.findOne({ _id: `MI${item.itemId}` });
                                                             return sum + (menuItem.price * item.quantity);
                                                         }, Promise.resolve(0));
-                                                        await ordersCollection.updateOne({ _id: orderId.trim() }, { $set: updatedData });
+                                                        await ordersCollection.updateOne({ _id: `ORD${orderId.trim()}` }, { $set: updatedData });
                                                         console.log("Đơn đặt hàng đã được cập nhật thành công.");
                                                         showOrderMenu();
                                                     }
@@ -1507,7 +1510,7 @@ function handleOrderManagement() {
                                     }
                                     addItem();
                                 } else {
-                                    await ordersCollection.updateOne({ _id: orderId.trim() }, { $set: updatedData });
+                                    await ordersCollection.updateOne({ _id: `ORD${orderId.trim()}` }, { $set: updatedData });
                                     console.log("Đơn đặt hàng đã được cập nhật thành công.");
                                     showOrderMenu();
                                 }
@@ -1524,9 +1527,9 @@ function handleOrderManagement() {
 
     // Xóa đơn đặt hàng
     async function deleteOrder() {
-        rl.question(`Nhập ID đơn đặt hàng cần xóa (ORD000000001 - ${String(nextOrderId - 1).padStart(9, "0")}): `, async (orderId) => {
+        rl.question(`Nhập ID đơn đặt hàng cần xóa: ORD`, async (orderId) => {
             try {
-                const result = await ordersCollection.deleteOne({ _id: orderId.trim() });
+                const result = await ordersCollection.deleteOne({ _id: `ORD${orderId.trim()}` });
                 if (result.deletedCount > 0) {
                     console.log("Đơn đặt hàng đã được xóa thành công.");
                 } else {
@@ -1573,9 +1576,9 @@ function handleOrderManagement() {
 
         // Tìm bằng ID
         async function searchById() {
-            rl.question(`Nhập ID đơn đặt hàng (ORD000000001 - ORD${String(nextOrderId - 1).padStart(9, "0")}): `, async (id) => {
+            rl.question(`Nhập ID đơn đặt hàng: ORD`, async (id) => {
                 try {
-                    const order = await ordersCollection.findOne({ _id: id.trim().toUpperCase() });
+                    const order = await ordersCollection.findOne({ _id: `ORD${id.trim()}` });
                     if (!order) {
                         console.log("Không tìm thấy đơn đặt hàng với ID này.");
                     } else {
@@ -1650,8 +1653,8 @@ function handlePromotionManagement() {
             ================================
             1. Thêm khuyến mãi
             2. Xem danh sách khuyến mãi
-            3. Gỡ khuyến mãi
-            4. Cập nhật khuyến mãi
+            3. Cập nhật khuyến mãi
+            4. Gỡ khuyến mãi
             5. Quay lại menu chính
         `);
     
@@ -1664,10 +1667,10 @@ function handlePromotionManagement() {
                     await listPromotions();
                     break;
                 case "3":
-                    await removePromotion();
+                    await updatePromotion();
                     break;
                 case "4":
-                    await updatePromotion();
+                    await removePromotion();
                     break;
                 case "5":
                     showMenuDialog();
@@ -1681,14 +1684,14 @@ function handlePromotionManagement() {
     
     // Thêm khuyến mãi
     async function addPromotion() {
-        rl.question(`Nhập ID món ăn cần áp dụng khuyến mãi (MI0001 - MI${String(nextMenuId - 1).padStart(4, "0")}): `, async (id) => {
-            const menuItem = await menuCollection.findOne({ _id: id });
+        rl.question(`Nhập ID món ăn cần áp dụng khuyến mãi: MI`, async (id) => {
+            const menuItem = await menuCollection.findOne({ _id: `MI${id.trim()}` });
             if (!menuItem) {
                 console.log("Không tìm thấy món ăn với ID này.");
                 return showPromotionMenu();
             }
 
-            const existingPromotion = await promotionsCollection.findOne({ itemId: id });
+            const existingPromotion = await promotionsCollection.findOne({ itemId: `MI${id}` });
             if (existingPromotion) {
                 console.log("Món ăn này đã có khuyến mãi.");
                 return showPromotionMenu();
@@ -1736,9 +1739,9 @@ function handlePromotionManagement() {
     
     // Gỡ khuyến mãi
     async function removePromotion() {
-        rl.question(`Nhập ID món ăn cần gỡ khuyến mãi (MI0001 - MI${String(nextMenuId - 1).padStart(4, "0")}): `, async (id) => {
+        rl.question(`Nhập ID món ăn cần gỡ khuyến mãi: MI`, async (id) => {
             try {
-                const result = await promotionsCollection.deleteOne({ itemId: id });
+                const result = await promotionsCollection.deleteOne({ itemId: `MI${id.trim()}` });
                 if (result.deletedCount > 0) {
                     console.log("Khuyến mãi đã được gỡ thành công.");
                 } else {
@@ -1753,14 +1756,14 @@ function handlePromotionManagement() {
 
     // Cập nhật khuyến mãi
     async function updatePromotion() {
-        rl.question(`Nhập ID món ăn cần cập nhật khuyến mãi (MI0001 - MI${String(nextMenuId - 1).padStart(4, "0")}): `, async (id) => {
-            const menuItem = await menuCollection.findOne({ _id: id });
+        rl.question(`Nhập ID món ăn cần cập nhật khuyến mãi: MI`, async (id) => {
+            const menuItem = await menuCollection.findOne({ _id: `MI${id.trim()}` });
             if (!menuItem) {
                 console.log("Không tìm thấy món ăn với ID này.");
                 return showPromotionMenu();
             }
 
-            const existingPromotion = await promotionsCollection.findOne({ itemId: id });
+            const existingPromotion = await promotionsCollection.findOne({ itemId: `MI${id}` });
             if (!existingPromotion) {
                 console.log("Không tìm thấy khuyến mãi cho món ăn này.");
                 return showPromotionMenu();
@@ -1774,7 +1777,7 @@ function handlePromotionManagement() {
 
                 try {
                     await promotionsCollection.updateOne(
-                        { itemId: id },
+                        { itemId: `MI${id}` },
                         { $set: { discount: parseInt(discount) } }
                     );
                     console.log("Khuyến mãi đã được cập nhật.");
