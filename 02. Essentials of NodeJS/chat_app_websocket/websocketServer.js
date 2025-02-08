@@ -14,3 +14,5 @@ server.on('connection', socket => {
         });
     })
 })
+
+console.log('📡 WebSocket chạy tại ws://localhost:8080');
