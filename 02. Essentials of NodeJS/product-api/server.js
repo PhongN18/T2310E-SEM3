@@ -23,7 +23,10 @@ const server = http.createServer((req, res) => {
                 // Kiểm tra nếu dữ liệu thiếu name hoặc price
                 if (!product.name || !product.price) {
                     res.writeHead(400);
-                    res.end(JSON.stringify({ error: "Dữ liệu không hợp lệ. Vui lòng gửi theo định dạng:", example: { name: "Sản phẩm mẫu", price: 100000 }}));
+                    res.end(JSON.stringify({
+                        error: "Dữ liệu không hợp lệ. Vui lòng gửi theo định dạng:",
+                        example: { name: "Sản phẩm mẫu", price: 100000 }
+                    }));
                     return;
                 }
                 product.id = productId++; // Gán ID tự động
