@@ -13,7 +13,6 @@ app.get('/', (req, res) => {
 
 app.listen(PORT, () => {
     console.log("Server chạy tại http://localhost:3000");
-    
 });
 
 const readData = async () => {
