@@ -1,0 +1,210 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Helvetica, sans-serif;
+}
+
+header, footer {
+    background-color: #7d9b87;
+    color: white;
+    padding: 12px 30px;
+}
+
+header .logo {
+    font-size: 30px;
+}
+
+footer ul {
+    list-style-type: none;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+}
+
+footer ul li a {
+    text-decoration: none;
+    color: white;
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 15px;
+}
+
+nav ul li {
+    display: inline;
+    margin: 0 15px;
+}
+
+nav ul li a {
+    color: white;
+    text-decoration: none;
+}
+
+main {
+    padding: 20px;
+    min-height: calc(100vh - 120px);
+}
+
+/* Table Styling */
+table {
+    width: 100%;
+    margin-top: 30px;
+    border-collapse: collapse;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+}
+
+table th, table td {
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
+
+table th {
+    background-color: #7d9b87;
+    color: white;
+}
+
+table td img {
+    max-width: 150px;
+    max-height: 150px;
+    border-radius: 5px;
+}
+
+table td button {
+    padding: 8px 15px;
+    margin: 5px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+table td button:hover {
+    opacity: 0.8;
+}
+
+button.edit {
+    background-color: #FFA500;
+    color: white;
+}
+
+button.edit:hover {
+    background-color: #ff8c00;
+}
+
+button.delete {
+    background-color: #f44336;
+    color: white;
+}
+
+button.delete:hover {
+    background-color: #d32f2f;
+}
+
+/* Styling for the Form */
+.form-container {
+    margin-top: 32px;
+    max-width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    justify-content: space-between;
+}
+
+#imagePreview {
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    max-height: 350px;
+    max-width: 350px;
+}
+
+form {
+    background-color: #fff;
+    padding: 20px;
+    margin-bottom: 30px;
+    width: 100%;
+    max-width: 600px;
+}
+
+/* Styling for form labels */
+form label {
+    display: block;
+    font-size: 16px;
+    margin-bottom: 8px;
+    color: #99795b;
+}
+
+/* Styling for form inputs and textareas */
+form input, form textarea {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #99795b;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+/* Focus effect for form inputs */
+form input:focus, form textarea:focus {
+    border-color: #333;
+    outline: none;
+}
+
+/* Styling for the file input */
+form input[type="file"] {
+    padding: 5px;
+    font-size: 14px;
+    border: 1px solid #99795b;
+    border-radius: 5px;
+    background-color: #fafafa;
+    margin-bottom: 20px;
+}
+
+/* Submit button styling */
+form button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+form button:hover {
+    background-color: #45a049;
+}
+
+.table-title {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 20px;
+}
+
+.reset-btn {
+    padding: 0;
+    margin: 0;
+    display: flex;
+    justify-content: end;
+}
+
+.reset-btn button {
+    background-color: #d32f2f;
+}
+
+.reset-btn button:hover {
+    background-color: #d32f2f;
+    opacity: 0.7;
+}
