@@ -9,4 +9,4 @@ class WelcomeScreen:
         tk.Label(self.frame, text="Welcome to Library Manager", font=("Arial", 20, "bold"), bg="#fff3e0").pack(pady=50)
 
         tk.Button(self.frame, text="Manage Library", font=("Arial", 14), bg="#f1c40f", command=self.controller.show_manage_library).pack(pady=10)
-        tk.Button(self.frame, text="View Books", font=("Arial", 14), bg="#3498db", command=self.controller.show_view_genres).pack(pady=10)
+        tk.Button(self.frame, text="View Books", font=("Arial", 14), bg="#3498db", command=self.controller.show_view_books).pack(pady=10)
