@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "E:\\APTECH\\3rd SEM\\04. Developing ASP.NET Core MVC Applications\\MvcMovie\\MvcMovie.csproj": {}
+    "e:\\APTECH\\3rd SEM\\04. Developing ASP.NET Core MVC Applications\\MvcMovie\\MvcMovie.csproj": {}
   },
   "projects": {
-    "E:\\APTECH\\3rd SEM\\04. Developing ASP.NET Core MVC Applications\\MvcMovie\\MvcMovie.csproj": {
+    "e:\\APTECH\\3rd SEM\\04. Developing ASP.NET Core MVC Applications\\MvcMovie\\MvcMovie.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\APTECH\\3rd SEM\\04. Developing ASP.NET Core MVC Applications\\MvcMovie\\MvcMovie.csproj",
+        "projectUniqueName": "e:\\APTECH\\3rd SEM\\04. Developing ASP.NET Core MVC Applications\\MvcMovie\\MvcMovie.csproj",
         "projectName": "MvcMovie",
-        "projectPath": "E:\\APTECH\\3rd SEM\\04. Developing ASP.NET Core MVC Applications\\MvcMovie\\MvcMovie.csproj",
+        "projectPath": "e:\\APTECH\\3rd SEM\\04. Developing ASP.NET Core MVC Applications\\MvcMovie\\MvcMovie.csproj",
         "packagesPath": "C:\\Users\\Dell E5470\\.nuget\\packages\\",
-        "outputPath": "E:\\APTECH\\3rd SEM\\04. Developing ASP.NET Core MVC Applications\\MvcMovie\\obj\\",
+        "outputPath": "e:\\APTECH\\3rd SEM\\04. Developing ASP.NET Core MVC Applications\\MvcMovie\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Dell E5470\\AppData\\Roaming\\NuGet\\NuGet.Config"
