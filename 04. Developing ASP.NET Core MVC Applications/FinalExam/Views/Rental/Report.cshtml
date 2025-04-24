@@ -1,0 +1,54 @@
+@model IEnumerable<dynamic>
+
+@{
+    ViewData["Title"] = "Rental Report";
+}
+
+<h2>Rental Report</h2>
+
+<form asp-action="Report" method="get">
+    <div class="form-group">
+        <label for="startDate">Start Date:</label>
+        <input type="date" name="startDate" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label for="endDate">End Date:</label>
+        <input type="date" name="endDate" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Generate Report</button>
+</form>
+
+@if (Model != null && Model.Any())
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>No</th>
+                <th>Book Name</th>
+                <th>Rental Date</th>
+                <th>Return Date</th>
+                <th>Customer Name</th>
+                <th>Quantity</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (var i = 0; i < Model.Count(); i++)
+            {
+                <tr>
+                    <td>@(i + 1)</td>
+                    <td>@Model.ElementAt(i).BookName</td>
+                    <td>@Model.ElementAt(i).RentalDate</td>
+                    <td>@Model.ElementAt(i).ReturnDate</td>
+                    <td>@Model.ElementAt(i).CustomerName</td>
+                    <td>@Model.ElementAt(i).Quantity</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No rentals found for the specified date range.</p>
+}

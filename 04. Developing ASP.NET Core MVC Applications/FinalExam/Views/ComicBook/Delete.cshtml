@@ -1,0 +1,27 @@
+@model FinalExam.Models.ComicBook
+
+@{
+    ViewData["Title"] = "Delete Comic Book";
+}
+
+<h2>Delete Comic Book</h2>
+
+<h3>Are you sure you want to delete this comic book?</h3>
+<div>
+    <strong>Title:</strong> @Model.Title
+</div>
+<div>
+    <strong>Author:</strong> @Model.Author
+</div>
+<div>
+    <strong>Price per Day:</strong> @Model.PricePerDay
+</div>
+
+<form asp-action="DeleteConfirmed" method="post">
+    <input type="hidden" asp-for="ComicBookId" />
+    <button type="submit" class="btn btn-danger">Delete</button>
+</form>
+
+<div>
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+</div>

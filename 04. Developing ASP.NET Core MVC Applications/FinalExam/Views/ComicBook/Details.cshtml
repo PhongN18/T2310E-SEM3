@@ -1,0 +1,24 @@
+@model FinalExam.Models.ComicBook
+
+@{
+    ViewData["Title"] = "Comic Book Details";
+}
+
+<h2>@Model.Title</h2>
+
+<div>
+    <strong>Author:</strong> @Model.Author
+</div>
+<div>
+    <strong>Price per Day:</strong> @Model.PricePerDay
+</div>
+
+<!-- Rent Link to Navigate to Rent Page -->
+<div>
+    <a asp-controller="Rental" asp-action="Rent" asp-route-comicBookId="@Model.ComicBookId" class="btn btn-primary">Rent This Book</a>
+</div>
+
+<!-- Back to ComicBooks List -->
+<div>
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+</div>

@@ -1,0 +1,48 @@
+@model IEnumerable<FinalExam.Models.Rental>
+
+@{
+    ViewData["Title"] = "Rental History";
+}
+
+<h2>Your Rental History</h2>
+
+@if (Model != null && Model.Any())
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Rental Date</th>
+                <th>Return Date</th>
+                <th>Comic Book Title</th>
+                <th>Quantity</th>
+                <th>Price per Day</th>
+                <th>Total Price per Day</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var rental in Model)
+            {
+                foreach (var rentalDetail in rental.RentalDetails)
+                {
+                    <tr>
+                        <td>@rental.RentalDate.ToShortDateString()</td>
+                        <td>@rental.ReturnDate.ToShortDateString()</td>
+                        <td>@rentalDetail.ComicBook.Title</td>
+                        <td>@rentalDetail.Quantity</td>
+                        <td>@rentalDetail.PricePerDay</td>
+                        <td>@(rentalDetail.Quantity* rentalDetail.PricePerDay)</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>You have not rented any comic books yet.</p>
+}
+
+<div>
+    <a asp-action="Report" class="btn btn-primary">Show Report</a>
+    <a asp-action="Index" class="btn btn-secondary">Back to Home</a>
+</div>

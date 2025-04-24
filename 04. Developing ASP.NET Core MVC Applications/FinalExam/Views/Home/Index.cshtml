@@ -1,0 +1,14 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+    var customer = ViewData["Customer"] as FinalExam.Models.Customer;
+}
+
+@if (customer != null)
+{
+    <p>Welcome, @customer.Fullname!</p>
+    <a href="@Url.Action("Logout", "Customer")">Logout</a>
+}
+else
+{
+    <a href="@Url.Action("Login", "Customer")">Login</a>
+}

@@ -1,0 +1,32 @@
+@model FinalExam.Models.ComicBook
+
+@{
+    ViewData["Title"] = "Rent Comic Book";
+}
+
+<h2>Rent @Model.Title</h2>
+
+<!-- Rent Form -->
+<form asp-controller="Rental" asp-action="Rent" method="post">
+    <input type="hidden" name="comicBookId" value="@Model.ComicBookId" />
+
+    <!-- Get the customerId from ViewData and pass it as a hidden input -->
+    <input type="hidden" name="customerId" value="@ViewData["CustomerId"]" />
+
+    <div class="form-group">
+        <label for="quantity">Quantity</label>
+        <input type="number" id="quantity" name="quantity" class="form-control" required />
+    </div>
+
+    <div class="form-group">
+        <label for="returnDate">Return Date</label>
+        <input type="date" id="returnDate" name="returnDate" class="form-control" required />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Rent Book</button>
+</form>
+
+<!-- Back to ComicBooks List -->
+<div>
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+</div>
